@@ -1,0 +1,21 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+
+const PostCard = ({ post }) => {
+    const navigate = useNavigate();
+    
+    return (
+        <div 
+            className="bg-glass backdrop-blur-md rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-glass"
+            onClick={() => navigate(`/post/${post.slug}`)}
+        >
+            <img className="w-full h-48 object-cover" src={post.imageUrl} alt={post.title} onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/800x400/1B263B/E0E1DD?text=Image+Error'; }} />
+            <div className="p-6">
+                <h3 className="text-xl font-bold text-text-primary mb-2">{post.title}</h3>
+                <p className="text-text-secondary text-sm">By {post.author} on {new Date(post.createdAt).toLocaleDateString()}</p>
+            </div>
+        </div>
+    );
+};
+
+export default PostCard;
