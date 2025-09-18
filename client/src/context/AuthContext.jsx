@@ -1,4 +1,5 @@
-import React, { useState, useEffect, createContext, useContext } from 'react';
+import React, { useState, useEffect, createContext } from 'react';
+import axios from 'axios'; // Import axios
 import { authService } from '../api/authService';
 
 export const AppContext = createContext(null);
@@ -10,31 +11,42 @@ export const AppProvider = ({ children }) => {
 
     useEffect(() => {
         const storedUser = sessionStorage.getItem('user');
-        if (storedUser) {
+        const storedToken = sessionStorage.getItem('token');
+
+        if (storedUser && storedToken) {
             setUser(JSON.parse(storedUser));
+            // Set the token for all future axios requests
+            axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
         }
+        
         const storedTheme = localStorage.getItem('theme') || 'dark';
         setTheme(storedTheme);
         setLoading(false);
     }, []);
 
     const login = async (email, password) => {
-        const data = await authService.login(email, password);
-        setUser(data.user);
-        sessionStorage.setItem('user', JSON.stringify(data.user));
-        return data;
+        const { token, user } = await authService.login(email, password);
+        setUser(user);
+        sessionStorage.setItem('user', JSON.stringify(user));
+        sessionStorage.setItem('token', token);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        return { token, user };
     };
 
     const register = async (name, email, password) => {
-        const data = await authService.register(name, email, password);
-        setUser(data.user);
-        sessionStorage.setItem('user', JSON.stringify(data.user));
-        return data;
+        const { token, user } = await authService.register(name, email, password);
+        setUser(user);
+        sessionStorage.setItem('user', JSON.stringify(user));
+        sessionStorage.setItem('token', token);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        return { token, user };
     };
 
     const logout = () => {
         setUser(null);
         sessionStorage.removeItem('user');
+        sessionStorage.removeItem('token');
+        delete axios.defaults.headers.common['Authorization'];
     };
     
     const toggleTheme = () => {
@@ -43,16 +55,11 @@ export const AppProvider = ({ children }) => {
         localStorage.setItem('theme', newTheme);
     };
 
-    const value = { user, isAuthenticated: !!user, loading, login, register, logout, theme, toggleTheme };
+    const value = { user, setUser, isAuthenticated: !!user, loading, login, register, logout, theme, toggleTheme };
 
     return (
         <AppContext.Provider value={value}>
             {!loading && children}
         </AppContext.Provider>
     );
-};
-
-// Export the useAppContext hook so it can be used in other components.
-export const useAppContext = () => {
-  return useContext(AppContext);
 };

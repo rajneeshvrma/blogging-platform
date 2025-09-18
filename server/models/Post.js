@@ -5,14 +5,14 @@ const postSchema = mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: 'User', // Establishes a relationship with the User model
+      ref: 'User',
     },
     title: {
       type: String,
       required: true,
     },
     content: {
-      type: String, // This will store the rich text (HTML) from the editor
+      type: String,
       required: true,
     },
     category: {
@@ -20,15 +20,21 @@ const postSchema = mongoose.Schema(
       required: true,
     },
     image: {
-      type: String, // URL to the image from Cloudinary
-      required: false,
+      type: String,
+      required: false, // Image is not always required
     },
-    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    likes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
   },
   {
-    timestamps: true,
+    timestamps: true, // Automatically adds createdAt and updatedAt
   }
 );
 
 const Post = mongoose.model('Post', postSchema);
+
 export default Post;
