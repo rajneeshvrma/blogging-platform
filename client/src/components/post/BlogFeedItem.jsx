@@ -17,7 +17,7 @@ const BlogFeedItem = ({ post }) => {
 
     return (
         <div 
-            onClick={() => navigate(`/post/${post.slug}`)}
+            onClick={() => navigate(`/post/${post._id}`)}
             className="
                 w-full flex flex-col md:flex-row items-center gap-8 p-6 
                 bg-glass border border-glass rounded-2xl 

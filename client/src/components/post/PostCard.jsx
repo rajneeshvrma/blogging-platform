@@ -7,11 +7,13 @@ const PostCard = ({ post }) => {
     // author object से author का नाम निकालें
     const authorName = post.author?.name || 'Unknown Author';
     const postDate = post.createdAt || post.timestamp;
+    console.log("PostCard → post:", post);
+
 
     return (
         <div 
             className="bg-glass backdrop-blur-md rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-glass"
-            onClick={() => navigate(`/post/${post.slug}`)}
+           onClick={() => navigate(`/post/${post._id}`)}
         >
             <img className="w-full h-48 object-cover" src={post.imageUrl} alt={post.title} onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/800x400/1B263B/E0E1DD?text=Image+Error'; }} />
             <div className="p-6">

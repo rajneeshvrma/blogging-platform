@@ -69,8 +69,7 @@ const AppContent = () => {
                         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                         <Route path="/terms" element={<TermsAndConditionsPage />} />
                         <Route path="/disclaimer" element={<DisclaimerPage />} />
-                        <Route path="/post/:slug" element={<PostDetailsPage />} />
-
+                        <Route path="/post/:id" element={<PostDetailsPage />} />
                         {/* Fallback Route */}
                         <Route path="*" element={<HomePage />} />
                     </Routes>

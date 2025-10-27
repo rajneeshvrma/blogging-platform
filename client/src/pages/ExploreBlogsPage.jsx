@@ -23,7 +23,7 @@ const ExploreBlogsPage = () => {
             
             <div className="max-w-4xl mx-auto flex flex-col gap-12">
                 {posts.slice(0, visiblePosts).map(post => (
-                    <BlogFeedItem key={post.id} post={post} />
+                    <BlogFeedItem key={post._id || post.id} post={post} />
                 ))}
             </div>
 
