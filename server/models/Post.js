@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const postSchema = mongoose.Schema(
   {
-    user: {
+    author: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: 'User',
@@ -15,26 +15,42 @@ const postSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    category: {
+    imageUrl: {
       type: String,
+      default: '',
+    },
+    category: {
+      type: String, 
       required: true,
     },
-    image: {
+    
+    status: {
       type: String,
-      required: false, // Image is not always required
+      enum: ['draft', 'published', 'scheduled'], 
+      default: 'published', 
     },
+    publishedAt: {
+      type: Date,
+      default: Date.now, 
+    },
+    
     likes: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
       },
     ],
+    comments: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Comment',
+      },
+    ],
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt
+    timestamps: true, 
   }
 );
 
 const Post = mongoose.model('Post', postSchema);
-
 export default Post;

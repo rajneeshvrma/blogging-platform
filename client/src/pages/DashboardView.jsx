@@ -4,7 +4,6 @@ import ProfileCard from '../components/profile/ProfileCard';
 import { NewPostCard, SearchCard, TrendingCard, SuggestionsCard } from '../components/dashboard/SidebarComponents';
 
 const DashboardView = ({ blogs, currentUser, allUsers, visibleBlogs, setVisibleBlogs, handleLike, handleComment, handleDelete, openModal, navigateTo, onFollow }) => (
-    // ADDED: pt-24 (padding-top) to correctly position the content below the fixed navbar.
     <main className="container mx-auto p-4 md:px-6 pt-24">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <aside className="hidden lg:block lg:col-span-1">
@@ -26,7 +25,6 @@ const DashboardView = ({ blogs, currentUser, allUsers, visibleBlogs, setVisibleB
                         onDelete={handleDelete}
                         onShare={() => openModal('share', blog)}
                         onLikersClick={() => openModal('likers', blog.likes)}
-                        // This now correctly navigates to the user's profile
                         onProfileClick={navigateTo}
                         index={index}
                     />

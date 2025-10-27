@@ -1,7 +1,6 @@
 import User from '../models/User.js';
 import generateToken from '../utils/generateToken.js';
 
-// @desc    Register a new user
 export const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -15,7 +14,7 @@ export const registerUser = async (req, res) => {
     const user = await User.create({
       name,
       email,
-      password, // Password will be hashed by the pre-save hook in the model
+      password,
     });
 
     if (user) {
@@ -25,6 +24,15 @@ export const registerUser = async (req, res) => {
         email: user.email,
         isAdmin: user.isAdmin,
         token: generateToken(user._id),
+        bio: user.bio,
+        location: user.location,
+        website: user.website,
+        avatar: user.avatar,
+        coverPhoto: user.coverPhoto,
+        twitter: user.twitter,
+        linkedin: user.linkedin,
+        followers: user.followers,
+        following: user.following,
       });
     } else {
       res.status(400).json({ message: 'Invalid user data' });
@@ -34,7 +42,6 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// @desc    Authenticate user & get token
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
@@ -48,6 +55,15 @@ export const loginUser = async (req, res) => {
         email: user.email,
         isAdmin: user.isAdmin,
         token: generateToken(user._id),
+        bio: user.bio,
+        location: user.location,
+        website: user.website,
+        avatar: user.avatar,
+        coverPhoto: user.coverPhoto,
+        twitter: user.twitter,
+        linkedin: user.linkedin,
+        followers: user.followers,
+        following: user.following,
       });
     } else {
       res.status(401).json({ message: 'Invalid email or password' });

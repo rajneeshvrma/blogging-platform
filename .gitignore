@@ -1,1 +1,13 @@
  
+# Ignore all node_modules in any folder
+node_modules/
+
+# ignore environment files
+*.env
+
+# Ignore build folders
+dist/
+build/
+
+# Ignore VS Code settings (optional)
+.vscode/

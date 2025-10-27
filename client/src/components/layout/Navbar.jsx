@@ -6,11 +6,8 @@ import { LogoIcon, SearchIcon, SunIcon, MoonIcon } from '../common/Icons';
 const Navbar = () => {
     const { isAuthenticated, logout, theme, toggleTheme } = useAppContext();
     const [isScrolled, setIsScrolled] = useState(false);
-    const location = useLocation();
     const navigate = useNavigate();
-
-    // Check if the current page is the home page at the top of the scroll
-    const isHomePageAtTop = location.pathname === '/' && !isScrolled;
+    const isAtTop = !isScrolled;
 
     useEffect(() => {
         const handleScroll = () => {
@@ -22,12 +19,13 @@ const Navbar = () => {
 
     const handleLogout = () => {
         logout();
-        navigate('/');
+        navigate('/', { replace: true });
     };
 
     return (
         <>
-            <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isHomePageAtTop ? 'py-6' : 'py-2'}`}>
+            {/* FIX: Use the new 'isAtTop' variable to control the class */}
+            <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isAtTop ? 'py-6' : 'py-2'}`}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-center space-x-4 h-16">
                         <Link to="/" className="group text-text-primary font-bold text-xl tracking-wider bg-glass backdrop-blur-lg border border-glass rounded-full px-4 py-2 flex items-center space-x-2 transition-all duration-300">

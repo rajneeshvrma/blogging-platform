@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppContext } from '../hooks/useAuth';
 import Button from '../components/common/Button';
@@ -81,8 +81,24 @@ const formItemVariants = { hidden: { y: 20, opacity: 0 }, visible: { y: 0, opaci
 const AuthPage = () => {
     const location = useLocation();
     const [isLogin, setIsLogin] = useState(location.state?.show !== 'register');
+    const navigate = useNavigate();
+    const { isAuthenticated, loading } = useAppContext();
     const toggleAuthMode = (e) => { e?.preventDefault(); setIsLogin(prev => !prev); };
     useEffect(() => { setIsLogin(location.state?.show !== 'register'); }, [location.state]);
+
+    useEffect(() => {
+        if (!loading && isAuthenticated) {
+            navigate('/dashboard', { replace: true });
+        }
+    }, [isAuthenticated, loading, navigate]);
+
+    if (loading || (!loading && isAuthenticated)) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-background">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden">
@@ -126,12 +142,17 @@ const LoginForm = ({ toggleAuthMode }) => {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const { login } = useAppContext();
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setIsLoading(true);
-        try { await login(email, password); } catch (err) { setError(err?.message || 'Login failed'); } finally { setIsLoading(false); }
+        try { 
+            await login(email, password);
+            navigate('/dashboard', { replace: true }); 
+        } catch (err) { setError(err?.message || 'Login failed'); 
+        } finally { setIsLoading(false); }
     };
 
     return (

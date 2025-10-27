@@ -2,14 +2,18 @@ import React from 'react';
 import UserProfileHeader from '../components/profile/UserProfileHeader';
 import BlogPostModal from '../components/modals/BlogPostModal';
 import Modal from '../components/common/Modal';
+import { TrashIcon, EditIcon } from '../components/common/Icons';
 
-// This is the final version of your UserProfileView.
-// It now correctly handles all UI and actions.
-const UserProfileView = ({ profile, blogs, currentUser, onFollow, allUsers, openModal }) => {
+const UserProfileView = ({ profile, blogs, currentUser, onFollow, allUsers, openModal, onDeletePost, postError }) => {
     const [postModal, setPostModal] = React.useState(null);
 
     const closePostModal = () => setPostModal(null);
     const openPostModal = (blog) => setPostModal(blog);
+    const isOwnProfile = currentUser?._id === profile?._id;
+    if (!profile) {
+       return null; 
+    }
+
 
     return (
         <>
@@ -19,17 +23,15 @@ const UserProfileView = ({ profile, blogs, currentUser, onFollow, allUsers, open
                         profile={profile}
                         currentUser={currentUser}
                         onFollow={onFollow}
-                        // This now correctly opens the modal for editing the profile
                         onEditProfile={() => openModal('editProfile', profile)}
-                        onFollowersClick={() => openModal('followers', { title: 'Followers', list: profile.followers, allUsers })}
-                        onFollowingClick={() => openModal('following', { title: 'Following', list: profile.following, allUsers })}
+                        onFollowersClick={() => openModal('followers', { title: 'Followers', list: profile.followers, allUsers: [] })}
+                        onFollowingClick={() => openModal('following', { title: 'Following', list: profile.following, allUsers: [] })}
                     />
 
-                    {/* RESTORED: "Create New Post" button for your own profile */}
-                    {currentUser?.id === profile.id && (
+                    {isOwnProfile && (
                         <div className="text-center">
-                            <button 
-                                onClick={() => openModal('createPost')} 
+                            <button
+                                onClick={() => openModal('createPost')}
                                 className="bg-indigo-500 text-white font-semibold py-2 px-6 rounded-full hover:bg-indigo-600 transition-colors"
                             >
                                 Create New Post
@@ -37,28 +39,69 @@ const UserProfileView = ({ profile, blogs, currentUser, onFollow, allUsers, open
                         </div>
                     )}
 
-                    {/* Grid of the user's blog posts */}
+                    {postError && <div className="text-center text-red-500">{postError}</div>}
+
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {blogs.map((blog, index) => (
-                            <div key={blog.id} className="bg-black/20 backdrop-blur-xl border border-white/20 rounded-xl shadow-lg overflow-hidden group animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
-                                {/* This button now opens the post in a modal */}
-                                <button onClick={() => openPostModal(blog)} className="w-full text-left">
-                                    <img src={blog.imageUrl} alt={blog.title} className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300" />
+                            <div
+                                key={blog._id}
+                                className="relative bg-black/20 backdrop-blur-xl border border-white/20 rounded-xl shadow-lg overflow-hidden group animate-fade-in-up"
+                                style={{ animationDelay: `${index * 50}ms` }}
+                            >
+                                <div onClick={() => openPostModal(blog)} className="cursor-pointer">
+                                    <img src={blog.imageUrl || 'https://placehold.co/600x400?text=No+Image'} alt={blog.title} className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300" />
                                     <h3 className="p-4 font-bold text-white truncate">{blog.title}</h3>
-                                </button>
+                                     {isOwnProfile && blog.status === 'draft' && (
+                                        <span className="absolute top-2 left-2 bg-yellow-500 text-black text-xs font-semibold px-2 py-0.5 rounded z-10">Draft</span>
+                                     )}
+                                     {isOwnProfile && blog.status === 'scheduled' && new Date(blog.publishedAt) > new Date() && (
+                                        <span className="absolute top-2 left-2 bg-blue-500 text-white text-xs font-semibold px-2 py-0.5 rounded z-10">Scheduled</span>
+                                     )}
+                                </div>
+
+                                {/* --- ACTION BUTTONS --- */}
+                                {isOwnProfile && (
+                                    <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                        <button
+                                             onClick={(e) => {
+                                                 e.stopPropagation(); 
+                                                 openModal('createPost', blog);
+                                             }}
+                                             className="p-1 bg-blue-600/70 rounded-full text-white hover:bg-blue-700"
+                                             aria-label="Edit Post"
+                                         >
+                                             <EditIcon className="w-4 h-4" />
+                                         </button>
+                                        {/* Delete Button */}
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onDeletePost(blog._id);
+                                            }}
+                                            className="p-1 bg-red-600/70 rounded-full text-white hover:bg-red-700"
+                                            aria-label="Delete Post"
+                                        >
+                                            <TrashIcon className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>
+                     {blogs.length === 0 && !postError && (
+                         <div className="text-center text-gray-500 py-10">
+                            {isOwnProfile ? "You haven't created any posts yet." : "This user hasn't published any posts yet."}
+                         </div>
+                     )}
                 </div>
             </main>
 
-            {/* Modal for viewing a single post */}
             {postModal && (
                  <Modal onClose={closePostModal} title={postModal.title} size="2xl">
-                    <BlogPostModal 
-                        blog={postModal} 
-                        currentUser={currentUser} 
-                        // This onEdit function now correctly closes the view modal and opens the edit modal
+                    <BlogPostModal
+                        blog={postModal}
+                        currentUser={currentUser}
                         onEdit={(blogToEdit) => {
                             closePostModal();
                             openModal('createPost', blogToEdit);

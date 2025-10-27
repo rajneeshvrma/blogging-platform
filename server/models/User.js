@@ -21,7 +21,25 @@ const userSchema = mongoose.Schema(
       required: true,
       default: false,
     },
-    // --- ADD THESE LINES ---
+    bio: { type: String, default: '' },
+    location: { type: String, default: '' },
+    website: { type: String, default: '' },
+    avatar: {
+      type: String,
+      default: ''
+    },
+    coverPhoto: {
+      type: String,
+      default: ''
+    },
+    twitter: {
+      type: String,
+      default: '',
+    },
+    linkedin: {
+      type: String,
+      default: '',
+    },
     followers: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -40,7 +58,6 @@ const userSchema = mongoose.Schema(
   }
 );
 
-// Password hashing method (remains the same)
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
     next();
@@ -49,7 +66,6 @@ userSchema.pre('save', async function (next) {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Password matching method (remains the same)
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };

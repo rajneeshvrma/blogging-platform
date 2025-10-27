@@ -21,24 +21,26 @@ const Footer = () => (
                         <h3 className="text-sm font-semibold text-text-primary tracking-wider uppercase">Company</h3>
                         <ul className="mt-4 space-y-2">
                             <li><a href="/about" className="text-base text-text-secondary hover:text-text-primary">About</a></li>
-                            <li><a href="#" className="text-base text-text-secondary hover:text-text-primary">Contact</a></li>
-                            <li><a href="#" className="text-base text-text-secondary hover:text-text-primary">Pricing</a></li>
+                            {/* --- ADD THIS NEW LINK --- */}
+                            <li><a href="/team" className="text-base text-text-secondary hover:text-text-primary">Team</a></li>
+                            <li><a href="/contact" className="text-base text-text-secondary hover:text-text-primary">Contact</a></li>
+                            <li><a href="/pricing" className="text-base text-text-secondary hover:text-text-primary">Pricing</a></li>
                         </ul>
                     </div>
                     <div>
                         <h3 className="text-sm font-semibold text-text-primary tracking-wider uppercase">Resources</h3>
                         <ul className="mt-4 space-y-2">
                             <li><a href="/explore-blogs" className="text-base text-text-secondary hover:text-text-primary">Blog</a></li>
-                            <li><a href="#" className="text-base text-text-secondary hover:text-text-primary">Help Center</a></li>
-                            <li><a href="#" className="text-base text-text-secondary hover:text-text-primary">Community</a></li>
+                            <li><a href="/help-center" className="text-base text-text-secondary hover:text-text-primary">Help Center</a></li>
+                            <li><a href="/community" className="text-base text-text-secondary hover:text-text-primary">Community</a></li>
                         </ul>
                     </div>
                     <div>
                         <h3 className="text-sm font-semibold text-text-primary tracking-wider uppercase">Legal</h3>
                         <ul className="mt-4 space-y-2">
-                            <li><a href="#" className="text-base text-text-secondary hover:text-text-primary">Privacy Policy</a></li>
-                            <li><a href="#" className="text-base text-text-secondary hover:text-text-primary">Terms & Conditions</a></li>
-                            <li><a href="#" className="text-base text-text-secondary hover:text-text-primary">Disclaimer</a></li>
+                            <li><a href="/privacy-policy" className="text-base text-text-secondary hover:text-text-primary">Privacy Policy</a></li>
+                            <li><a href="/terms" className="text-base text-text-secondary hover:text-text-primary">Terms & Conditions</a></li>
+                            <li><a href="/disclaimer" className="text-base text-text-secondary hover:text-text-primary">Disclaimer</a></li>
                         </ul>
                     </div>
                 </div>

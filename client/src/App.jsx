@@ -8,22 +8,30 @@ import HomePage from './pages/Home';
 import AuthPage from './pages/Auth';
 import DashboardPage from './pages/DashboardPage';
 import CreatePostPage from './pages/CreatePost';
-import GenericPage from './pages/GenericPage';
 import UserProfilePage from './pages/UserProfilePage';
 import PostDetailsPage from './pages/PostDetails';
 
+import AboutPage from './pages/AboutPage';
+import TeamPage from './pages/TeamPage';
+import ContactPage from './pages/ContactPage';
+import PricingPage from './pages/PricingPage';
+import HelpCenterPage from './pages/HelpCenterPage';
+import CommunityPage from './pages/CommunityPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import TermsAndConditionsPage from './pages/TermsAndConditionsPage';
+import DisclaimerPage from './pages/DisclaimerPage';
+import ExploreBlogsPage from './pages/ExploreBlogsPage';
+import CategoriesPage from './pages/CategoriesPage';
+
 const PrivateRoute = ({ children }) => {
     const { isAuthenticated } = useAppContext();
-    return isAuthenticated ? children : <Navigate to="/auth" />;
+    return isAuthenticated ? children : <Navigate to="/auth" replace />;
 };
 
 const AppContent = () => {
     const { theme } = useAppContext();
     const location = useLocation();
     
-    // FIX: Simplified the layout check.
-    // The 'pt-32' class was causing the large gap. It's better handled
-    // within each page component itself for more control.
     const isSpecialLayout = location.pathname === '/auth' || location.pathname === '/';
 
     useEffect(() => {
@@ -39,24 +47,34 @@ const AppContent = () => {
         <div className={theme}>
             <div className="min-h-screen font-sans transition-colors duration-500 bg-background text-text-primary">
                 <Navbar />
-                {/* REMOVED: The className that added the top padding is gone. */}
                 <main>
                     <Routes>
                         <Route path="/" element={<HomePage />} />
                         <Route path="/auth" element={<AuthPage />} />
                         
+                        {/* Private Routes */}
                         <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
                         <Route path="/profile/:userId" element={<PrivateRoute><UserProfilePage /></PrivateRoute>} />
                         <Route path="/create-post" element={<PrivateRoute><CreatePostPage /></PrivateRoute>} />
-                        
-                        {/* ADDED: Route for viewing a single post */}
+
+                        {/* Public Routes */}
+                        <Route path="/explore-blogs" element={<ExploreBlogsPage />} />
+                        <Route path="/categories" element={<CategoriesPage />} />
+                        <Route path="/about" element={<AboutPage />} />
+                        <Route path="/team" element={<TeamPage />} />
+                        <Route path="/contact" element={<ContactPage />} />
+                        <Route path="/pricing" element={<PricingPage />} />
+                        <Route path="/help-center" element={<HelpCenterPage />} />
+                        <Route path="/community" element={<CommunityPage />} />
+                        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+                        <Route path="/terms" element={<TermsAndConditionsPage />} />
+                        <Route path="/disclaimer" element={<DisclaimerPage />} />
                         <Route path="/post/:slug" element={<PostDetailsPage />} />
 
-                        <Route path="/about" element={<GenericPage title="About Us" text="Welcome to GlassBlog." />} />
+                        {/* Fallback Route */}
                         <Route path="*" element={<HomePage />} />
                     </Routes>
                 </main>
-                {/* FIX: The Footer will now correctly appear on pages where it should. */}
                 {!isSpecialLayout && <Footer />}
             </div>
         </div>

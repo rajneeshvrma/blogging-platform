@@ -4,17 +4,14 @@ import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// @route   POST /api/upload
-// @desc    Upload an image
-// @access  Private
 router.post('/', protect, upload.single('image'), (req, res) => {
   if (req.file) {
     res.status(200).send({
       message: 'Image uploaded successfully',
-      image: req.file.path, // The secure URL from Cloudinary
+      image: `/uploads/${req.file.filename}`, 
     });
   } else {
-    res.status(400).send({ message: 'No image file provided' });
+    res.status(400).send({ message: 'No image file provided or invalid file type' });
   }
 });
 

@@ -3,22 +3,24 @@ import {
   getPosts,
   getPostById,
   createPost,
-  updatePost, // Add this
+  updatePostDetails,
   deletePost,
-  likePost,   // Add this
+  getPostsByUser,
+  likePost,
+  unlikePost,
+  getMyPosts,
 } from '../controllers/postController.js';
-import { protect } from '../middleware/authMiddleware.js';
+import { protect, admin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 router.route('/').get(getPosts).post(protect, createPost);
+router.route('/myposts').get(protect, getMyPosts);
+// ---------------------------------
 
-router
-  .route('/:id')
-  .get(getPostById)
-  .put(protect, updatePost) // Add this
-  .delete(protect, deletePost);
-
-router.route('/:id/like').put(protect, likePost); // Add this
+router.route('/:id').get(getPostById).put(protect, updatePostDetails).delete(protect, deletePost);
+router.route('/user/:userId').get(getPostsByUser);
+router.route('/:id/like').put(protect, likePost);
+router.route('/:id/unlike').put(protect, unlikePost);
 
 export default router;

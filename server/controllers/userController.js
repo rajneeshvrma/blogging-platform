@@ -1,10 +1,9 @@
 import User from '../models/User.js';
+import asyncHandler from 'express-async-handler'; 
 
-// @desc    Get user profile
-// @route   GET /api/users/profile
-export const getUserProfile = async (req, res) => {
-  // req.user is available from our 'protect' middleware
-  const user = await User.findById(req.user._id);
+export const getUserProfile = asyncHandler(async (req, res) => {
+  
+  const user = await User.findById(req.user._id).select('-password'); 
 
   if (user) {
     res.json({
@@ -12,23 +11,38 @@ export const getUserProfile = async (req, res) => {
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
+      bio: user.bio,
+      location: user.location,
+      website: user.website,
+      avatar: user.avatar,
+      coverPhoto: user.coverPhoto,
+      twitter: user.twitter,
+      linkedin: user.linkedin,
+      followers: user.followers,
+      following: user.following,
     });
   } else {
-    res.status(404).json({ message: 'User not found' });
+    res.status(404);
+    throw new Error('User not found'); 
   }
-};
+});
 
-// @desc    Update user profile
-// @route   PUT /api/users/profile
-export const updateUserProfile = async (req, res) => {
+export const updateUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
   if (user) {
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
+    user.bio = req.body.bio || user.bio;
+    user.location = req.body.location || user.location;
+    user.website = req.body.website || user.website;
+    user.avatar = req.body.avatar || user.avatar;
+    user.coverPhoto = req.body.coverPhoto || user.coverPhoto;
+    user.twitter = req.body.twitter || user.twitter;
+    user.linkedin = req.body.linkedin || user.linkedin;
 
     if (req.body.password) {
-      user.password = req.body.password; // The pre-save hook in the model will hash it
+      user.password = req.body.password; 
     }
 
     const updatedUser = await user.save();
@@ -38,8 +52,45 @@ export const updateUserProfile = async (req, res) => {
       name: updatedUser.name,
       email: updatedUser.email,
       isAdmin: updatedUser.isAdmin,
+      bio: updatedUser.bio,
+      location: updatedUser.location,
+      website: updatedUser.website,
+      avatar: updatedUser.avatar,
+      coverPhoto: updatedUser.coverPhoto,
+      witter: updatedUser.twitter, 
+      linkedin: updatedUser.linkedin,
+      followers: updatedUser.followers, 
+      following: updatedUser.following,
     });
   } else {
-    res.status(404).json({ message: 'User not found' });
+    res.status(404);
+    throw new Error('User not found'); 
   }
-};
+});
+
+export const getUserById = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id).select('-password'); 
+
+  if (user) {
+    
+    res.json({
+      _id: user._id,
+      name: user.name,
+      
+      bio: user.bio,
+      location: user.location,
+      website: user.website,
+      avatar: user.avatar,
+      coverPhoto: user.coverPhoto,
+      twitter: user.twitter,
+      linkedin: user.linkedin,
+      followers: user.followers,
+      following: user.following,
+      createdAt: user.createdAt,
+    });
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+

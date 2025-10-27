@@ -1,124 +1,182 @@
 import Post from '../models/Post.js';
+import User from '../models/User.js';
+import asyncHandler from 'express-async-handler';
 
-// @desc    Create a new post
-export const createPost = async (req, res) => {
-  const { title, content, category, image } = req.body;
 
-  try {
-    const post = new Post({
-      title,
-      content,
-      category,
-      image,
-      user: req.user._id, // From the 'protect' middleware
-    });
 
-    const createdPost = await post.save();
-    res.status(201).json(createdPost);
-  } catch (error) {
-    res.status(500).json({ message: `Server Error: ${error.message}` });
+export const getPosts = asyncHandler(async (req, res) => {
+  
+  const posts = await Post.find({
+    status: 'published',
+    publishedAt: { $lte: new Date() }, 
+  })
+    .populate('author', 'name avatar')
+    .sort({ publishedAt: -1 }); 
+  res.json(posts);
+});
+
+
+
+export const getMyPosts = asyncHandler(async (req, res) => {
+  
+  const posts = await Post.find({ author: req.user._id })
+    .populate('author', 'name avatar')
+    .sort({ createdAt: -1 }); 
+  res.json(posts);
+});
+
+
+
+export const getPostById = asyncHandler(async (req, res) => {
+  const post = await Post.findById(req.params.id).populate(
+    'author',
+    'name avatar'
+  );
+  
+
+  if (post) {
+    
+    if (
+      post.status !== 'published' &&
+      post.author._id.toString() !== req.user?._id.toString()
+    ) {
+      res.status(404);
+      throw new Error('Post not found');
+    }
+    res.json(post);
+  } else {
+    res.status(404);
+    throw new Error('Post not found');
   }
-};
+});
 
-// @desc    Get all posts
-export const getPosts = async (req, res) => {
-  try {
-    const posts = await Post.find({}).populate('user', 'name').sort({ createdAt: -1 });
-    res.json(posts);
-  } catch (error) {
-    res.status(500).json({ message: `Server Error: ${error.message}` });
+
+
+export const createPost = asyncHandler(async (req, res) => {
+  const { title, content, imageUrl, category, status, publishedAt } = req.body;
+
+  if (!title || !content) {
+    res.status(400);
+    throw new Error('Title and content are required');
   }
-};
 
-// @desc    Get a single post by ID
-export const getPostById = async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.id).populate('user', 'name');
+  const post = new Post({
+    author: req.user._id,
+    title,
+    content,
+    imageUrl,
+    category: category || 'General',
+    status: status || 'published', 
+    publishedAt:
+      status === 'scheduled' ? publishedAt : new Date(publishedAt || Date.now()),
+  });
 
-    if (post) {
-      res.json(post);
-    } else {
-      res.status(404).json({ message: 'Post not found' });
-    }
-  } catch (error) {
-    res.status(500).json({ message: `Server Error: ${error.message}` });
+  const createdPost = await post.save();
+  res.status(201).json(createdPost);
+});
+
+
+
+export const updatePostDetails = asyncHandler(async (req, res) => {
+  const { title, content, imageUrl, category, status, publishedAt } = req.body;
+  const post = await Post.findById(req.params.id);
+
+  if (!post) {
+    res.status(404);
+    throw new Error('Post not found');
   }
-};
 
-// @desc    Delete a post
-export const deletePost = async (req, res) => {
-    try {
-        const post = await Post.findById(req.params.id);
+  
+  if (post.author.toString() !== req.user._id.toString()) {
+    res.status(401);
+    throw new Error('Not authorized');
+  }
 
-        if (!post) {
-            return res.status(404).json({ message: 'Post not found' });
-        }
+  post.title = title || post.title;
+  post.content = content || post.content;
+  post.imageUrl = imageUrl !== undefined ? imageUrl : post.imageUrl;
+  post.category = category || post.category;
+  post.status = status || post.status;
 
-        // Check if the user deleting the post is the one who created it
-        if (post.user.toString() !== req.user._id.toString()) {
-            return res.status(401).json({ message: 'Not authorized' });
-        }
+  if (publishedAt) {
+    post.publishedAt = publishedAt;
+  } else if (status === 'published' && post.status !== 'published') {
+    post.publishedAt = new Date();
+  }
 
-        await post.deleteOne();
-        res.json({ message: 'Post removed' });
+  const updatedPost = await post.save();
+  res.json(updatedPost);
+});
 
-    } catch (error) {
-        res.status(500).json({ message: `Server Error: ${error.message}` });
-    }
-};
-// ... (inside postController.js)
 
-// @desc    Update a post
-export const updatePost = async (req, res) => {
-    const { title, content, category, image } = req.body;
 
-    try {
-        const post = await Post.findById(req.params.id);
+export const deletePost = asyncHandler(async (req, res) => {
+  const post = await Post.findById(req.params.id);
+  if (!post) {
+    res.status(404);
+    throw new Error('Post not found');
+  }
+  if (post.author.toString() !== req.user._id.toString()) {
+    res.status(401);
+    throw new Error('Not authorized');
+  }
+  
+  await post.deleteOne(); 
+  res.json({ message: 'Post removed' });
+});
 
-        if (!post) {
-            return res.status(404).json({ message: 'Post not found' });
-        }
 
-        // Check if the user updating the post is the one who created it
-        if (post.user.toString() !== req.user._id.toString()) {
-            return res.status(401).json({ message: 'Not authorized' });
-        }
 
-        post.title = title || post.title;
-        post.content = content || post.content;
-        post.category = category || post.category;
-        post.image = image || post.image;
+export const getPostsByUser = asyncHandler(async (req, res) => {
+  const posts = await Post.find({
+    author: req.params.userId,
+    status: 'published',
+    publishedAt: { $lte: new Date() },
+  })
+    .populate('author', 'name avatar')
+    .sort({ publishedAt: -1 });
+  res.json(posts);
+});
 
-        const updatedPost = await post.save();
-        res.json(updatedPost);
 
-    } catch (error) {
-        res.status(500).json({ message: `Server Error: ${error.message}` });
-    }
-};
 
-// @desc    Like/Unlike a post
-export const likePost = async (req, res) => {
-    try {
-        const post = await Post.findById(req.params.id);
+export const likePost = asyncHandler(async (req, res) => {
+  const post = await Post.findById(req.params.id);
+  if (!post) {
+    res.status(404);
+    throw new Error('Post not found');
+  }
+  
+  
+  if (post.likes.some((like) => like.toString() === req.user._id.toString())) {
+    res.status(400);
+    throw new Error('Post already liked');
+  }
+  
+  post.likes.push(req.user._id);
+  await post.save();
+  res.json({ message: 'Post liked' });
+});
 
-        if (!post) {
-            return res.status(404).json({ message: 'Post not found' });
-        }
 
-        // Check if the post has already been liked by this user
-        if (post.likes.includes(req.user._id)) {
-            // If yes, unlike it
-            post.likes = post.likes.filter(id => id.toString() !== req.user._id.toString());
-        } else {
-            // If no, like it
-            post.likes.push(req.user._id);
-        }
 
-        const updatedPost = await post.save();
-        res.json(updatedPost);
+export const unlikePost = asyncHandler(async (req, res) => {
+  const post = await Post.findById(req.params.id);
+  if (!post) {
+    res.status(404);
+    throw new Error('Post not found');
+  }
+  
+  
+  if (!post.likes.some((like) => like.toString() === req.user._id.toString())) {
+    res.status(400);
+    throw new Error('Post not yet liked');
+  }
+  
+  post.likes = post.likes.filter(
+    (like) => like.toString() !== req.user._id.toString()
+  );
+  await post.save();
+  res.json({ message: 'Post unliked' });
+});
 
-    } catch (error) {
-        res.status(500).json({ message: `Server Error: ${error.message}` });
-    }
-};
