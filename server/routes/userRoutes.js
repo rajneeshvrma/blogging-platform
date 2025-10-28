@@ -3,7 +3,8 @@ import {
   getUserProfile,
   updateUserProfile,
   getUserById,
-  getUsers 
+  getUsers,
+  toggleFollowUser
 } from '../controllers/userController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
@@ -15,6 +16,7 @@ router
   .route('/profile')
   .get(protect, getUserProfile)
   .put(protect, updateUserProfile);
+  router.route('/:id/togglefollow').put(protect, toggleFollowUser);
 router.route('/:id').get(protect, getUserById);
 
 export default router;

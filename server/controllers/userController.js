@@ -101,3 +101,51 @@ export const getUsers = asyncHandler(async (req, res) => {
   const users = await User.find({}).select('-password');
   res.json(users);
 });
+
+export const toggleFollowUser = asyncHandler(async (req, res) => {
+    const userIdToFollow = req.params.id; 
+    const currentUserId = req.user._id; 
+
+    if (!mongoose.Types.ObjectId.isValid(userIdToFollow)) {
+        res.status(404);
+        throw new Error('User not found (Invalid ID)');
+    }
+
+    if (userIdToFollow.toString() === currentUserId.toString()) {
+        res.status(400);
+        throw new Error("You cannot follow/unfollow yourself");
+    }
+
+    const userToFollow = await User.findById(userIdToFollow);
+    const currentUser = await User.findById(currentUserId);
+
+    if (!userToFollow || !currentUser) {
+        res.status(404);
+        throw new Error('User not found');
+    }
+
+    const isFollowingIndex = currentUser.following.findIndex(
+        (id) => id.toString() === userIdToFollow.toString()
+    );
+
+    if (isFollowingIndex > -1) {
+        currentUser.following.splice(isFollowingIndex, 1);
+        const followerIndex = userToFollow.followers.findIndex(
+            (id) => id.toString() === currentUserId.toString()
+        );
+        if (followerIndex > -1) {
+            userToFollow.followers.splice(followerIndex, 1);
+        }
+        console.log(`[userController] User ${currentUserId} unfollowed ${userIdToFollow}`);
+    } else {
+        currentUser.following.push(userIdToFollow);
+        userToFollow.followers.push(currentUserId);
+        console.log(`[userController] User ${currentUserId} followed ${userIdToFollow}`);
+    }
+
+    await currentUser.save();
+    await userToFollow.save();
+
+     const updatedCurrentUser = await User.findById(currentUserId).select('following');
+     res.json({ following: updatedCurrentUser.following });
+});

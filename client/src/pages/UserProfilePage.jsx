@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAppContext } from '../hooks/useAuth';
+import { userService } from '../api/userService';
 import UserProfileView from './UserProfileView';
 import Modal from '../components/common/Modal';
 import ConfirmationModal from '../components/common/ConfirmationModal';
@@ -22,6 +23,7 @@ const UserProfilePage = () => {
     const [confirmAction, setConfirmAction] = useState(null);
     const [confirmData, setConfirmData] = useState(null);
     const [confirmMessage, setConfirmMessage] = useState('');
+    const [isFollowingProcessing, setIsFollowingProcessing] = useState(false);
 
     const fetchUserPosts = async (profileId) => {
         if (!loggedInUser?.token || !profileId) return;
@@ -67,19 +69,24 @@ const UserProfilePage = () => {
 
     const closeModal = () => setModalContent(null);
     const openModal = (type, data) => {
-        let modalData = { ...data };
-        if (type === 'search') {
-            modalData = { ...data, allUsers: contextAllUsers, blogs: userBlogs };
-        } else if (type === 'likers' && Array.isArray(data)) {
-            const likerIds = data.map(like => typeof like === 'string' ? like : (like._id || like.id)).filter(Boolean);
-            modalData = contextAllUsers.filter(u => likerIds.includes(u._id || u.id));
-        } else if ((type === 'followers' || type === 'following') && data && Array.isArray(data.list)) {
+         let modalData = { ...data }; 
+
+         if (type === 'search') {
+             modalData = { ...data, allUsers: contextAllUsers || [], blogs: userBlogs || [] };
+         }
+         else if (type === 'likers' && Array.isArray(data)) {
+             const likerIds = data.map(like => typeof like === 'string' ? like : (like._id || like.id)).filter(Boolean);
+             const resolvedLikers = Array.isArray(contextAllUsers) ? contextAllUsers.filter(u => likerIds.includes(u._id || u.id)) : [];
+             modalData = resolvedLikers; 
+         }
+         else if ((type === 'followers' || type === 'following') && data && Array.isArray(data.list)) {
             const userIds = data.list.map(item => typeof item === 'string' ? item : (item._id || item.id)).filter(Boolean);
-            const userList = contextAllUsers.filter(u => userIds.includes(u._id || u.id));
-            modalData = { ...data, list: userList };
-        }
-        setModalContent({ type, data: modalData });
-    };
+            const resolvedUserList = Array.isArray(contextAllUsers) ? contextAllUsers.filter(u => userIds.includes(u._id || u.id)) : [];
+            modalData = { ...data, list: resolvedUserList };
+         }
+
+         setModalContent({ type, data: modalData });
+     };
 
     const handleProfileUpdate = async (updatedData) => {
         if (!loggedInUser || loggedInUser._id !== userId) return;
@@ -129,11 +136,6 @@ const UserProfilePage = () => {
         setConfirmModalOpen(true);
     };
 
-    const handleFollow = (idToFollow) => {
-        console.log(`Toggling follow for user ID: ${idToFollow}`);
-        setError("Follow functionality not implemented yet.");
-    };
-
     const handleConfirm = async () => {
         if (typeof confirmAction === 'function') {
             await confirmAction(); 
@@ -149,23 +151,61 @@ const UserProfilePage = () => {
         setConfirmData(null);
     };
 
+    const handleFollow = async (idToToggle) => {
+        if (!loggedInUser || isFollowingProcessing) return;
+        setIsFollowingProcessing(true); setError(null);
+        try {
+            const updatedFollowingList = await userService.toggleFollow(idToToggle);
+            setLoggedInUser({ ...loggedInUser, following: updatedFollowingList });
+            const wasFollowing = loggedInUser.following.some(id => id === idToToggle);
+            setProfileToDisplay(prevProfile => {
+                if (!prevProfile) return null;
+                const currentFollowers = prevProfile.followers || [];
+                let newFollowers;
+                if (wasFollowing) { newFollowers = currentFollowers.filter(id => id !== loggedInUser._id); }
+                else { newFollowers = [...currentFollowers, loggedInUser._id]; }
+                return { ...prevProfile, followers: newFollowers };
+            });
+        } catch (err) {
+            console.error("Failed to toggle follow", err);
+            const errorMsg = err.response?.data?.message || 'Could not update follow status.';
+            setError(errorMsg); alert(`Error: ${errorMsg}`);
+        } finally {
+            setIsFollowingProcessing(false);
+        }
+    };
+    
+
     if (loading) { return <div className="flex justify-center items-center min-h-screen"><Spinner /></div>; }
     if (error && !profileToDisplay) { return <div className="pt-24 text-center text-red-500 text-lg">{error}</div>; }
     if (!profileToDisplay) { return <div className="pt-24 text-center text-lg">User profile could not be loaded.</div>; }
     const postLoadingError = error ? error : null;
 
-    return (
-        <>
-            <UserProfileView
-                profile={profileToDisplay}
-                blogs={userBlogs}
-                currentUser={loggedInUser}
-                onFollow={handleFollow}
-                allUsers={contextAllUsers}
-                openModal={openModal}
-                onDeletePost={handleDelete}
-                postError={postLoadingError}
+    const coverPhotoUrl = profileToDisplay.coverPhoto || `https://source.unsplash.com/random/1920x1080/?pattern,texture&sig=${profileToDisplay._id || 'default'}`;
+
+    return (<div className="relative min-h-screen">
+            {/* --- Background Div using coverPhotoUrl --- */}
+            <div
+                className="fixed inset-0 -z-10 bg-cover bg-center opacity-15" // Adjust opacity as needed
+                style={{ backgroundImage: `url(${coverPhotoUrl})` }}
+                aria-hidden="true"
             />
+            {/* --- End Background Div --- */}
+
+            {/* --- Content Container (Ensure it's above the background) --- */}
+            <div className="relative z-0"> {/* Use z-0 or higher */}
+                <UserProfileView
+                    profile={profileToDisplay}
+                    blogs={userBlogs}
+                    currentUser={loggedInUser}
+                    onFollow={handleFollow}
+                    allUsers={contextAllUsers}
+                    openModal={openModal}
+                    onDeletePost={handleDelete}
+                    postError={postLoadingError}
+                    isFollowingProcessing={isFollowingProcessing}
+                />
+            </div>
             {modalContent && (
                 <Modal onClose={closeModal} title={modalContent.type.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} size={modalContent.type === 'createPost' || modalContent.type === 'editProfile' ? 'xl' : 'md'}>
                     <ModalContent
@@ -194,7 +234,7 @@ const UserProfilePage = () => {
                 message={confirmMessage}
                 confirmText="Delete"
             />
-        </>
+        </div>
     );
 };
 

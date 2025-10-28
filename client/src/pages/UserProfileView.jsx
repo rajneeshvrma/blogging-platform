@@ -4,7 +4,7 @@ import BlogPostModal from '../components/modals/BlogPostModal';
 import Modal from '../components/common/Modal';
 import { TrashIcon, EditIcon } from '../components/common/Icons';
 
-const UserProfileView = ({ profile, blogs = [], currentUser, onFollow, allUsers = [], openModal, onDeletePost, postError }) => {
+const UserProfileView = ({ profile, blogs = [], currentUser, onFollow, allUsers = [], openModal, onDeletePost, postError, isFollowingProcessing }) => {
     const [postModal, setPostModal] = React.useState(null);
 
     const closePostModal = () => setPostModal(null);
@@ -28,6 +28,7 @@ const UserProfileView = ({ profile, blogs = [], currentUser, onFollow, allUsers 
                         onEditProfile={() => openModal('editProfile', profile)}
                         onFollowersClick={() => openModal('followers', { title: 'Followers', list: profile.followers || [], allUsers })}
                         onFollowingClick={() => openModal('following', { title: 'Following', list: profile.following || [], allUsers })}
+                        isFollowingProcessing={isFollowingProcessing}
                     />
 
                     {isOwnProfile && (

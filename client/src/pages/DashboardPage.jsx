@@ -190,6 +190,7 @@ export default function DashboardPage() {
 
     return (
         <>
+        
             <DashboardView
                 blogs={feedPosts}
                 currentUser={currentUser}
