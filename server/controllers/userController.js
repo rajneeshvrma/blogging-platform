@@ -1,9 +1,9 @@
 import User from '../models/User.js';
-import asyncHandler from 'express-async-handler'; 
+import asyncHandler from 'express-async-handler';
+import mongoose from 'mongoose';
 
 export const getUserProfile = asyncHandler(async (req, res) => {
-  
-  const user = await User.findById(req.user._id).select('-password'); 
+  const user = await User.findById(req.user._id).select('-password');
 
   if (user) {
     res.json({
@@ -23,7 +23,7 @@ export const getUserProfile = asyncHandler(async (req, res) => {
     });
   } else {
     res.status(404);
-    throw new Error('User not found'); 
+    throw new Error('User not found');
   }
 });
 
@@ -33,16 +33,16 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
   if (user) {
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
-    user.bio = req.body.bio || user.bio;
-    user.location = req.body.location || user.location;
-    user.website = req.body.website || user.website;
-    user.avatar = req.body.avatar || user.avatar;
-    user.coverPhoto = req.body.coverPhoto || user.coverPhoto;
-    user.twitter = req.body.twitter || user.twitter;
-    user.linkedin = req.body.linkedin || user.linkedin;
+    user.bio = req.body.bio !== undefined ? req.body.bio : user.bio;
+    user.location = req.body.location !== undefined ? req.body.location : user.location;
+    user.website = req.body.website !== undefined ? req.body.website : user.website;
+    user.avatar = req.body.avatar !== undefined ? req.body.avatar : user.avatar;
+    user.coverPhoto = req.body.coverPhoto !== undefined ? req.body.coverPhoto : user.coverPhoto;
+    user.twitter = req.body.twitter !== undefined ? req.body.twitter : user.twitter;
+    user.linkedin = req.body.linkedin !== undefined ? req.body.linkedin : user.linkedin;
 
     if (req.body.password) {
-      user.password = req.body.password; 
+      user.password = req.body.password;
     }
 
     const updatedUser = await user.save();
@@ -57,26 +57,28 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
       website: updatedUser.website,
       avatar: updatedUser.avatar,
       coverPhoto: updatedUser.coverPhoto,
-      witter: updatedUser.twitter, 
+      twitter: updatedUser.twitter, 
       linkedin: updatedUser.linkedin,
-      followers: updatedUser.followers, 
+      followers: updatedUser.followers,
       following: updatedUser.following,
     });
   } else {
     res.status(404);
-    throw new Error('User not found'); 
+    throw new Error('User not found');
   }
 });
 
 export const getUserById = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.params.id).select('-password'); 
+   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      res.status(404);
+      throw new Error('User not found (Invalid ID)');
+   }
+  const user = await User.findById(req.params.id).select('-password');
 
   if (user) {
-    
     res.json({
       _id: user._id,
       name: user.name,
-      
       bio: user.bio,
       location: user.location,
       website: user.website,
@@ -94,3 +96,8 @@ export const getUserById = asyncHandler(async (req, res) => {
   }
 });
 
+
+export const getUsers = asyncHandler(async (req, res) => {
+  const users = await User.find({}).select('-password');
+  res.json(users);
+});
