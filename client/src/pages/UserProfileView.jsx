@@ -1,6 +1,6 @@
 import React from 'react';
 import UserProfileHeader from '../components/profile/UserProfileHeader';
-import BlogPostModal from '../components/modals/BlogPostModal'; 
+import BlogPostModal from '../components/modals/BlogPostModal';
 import Modal from '../components/common/Modal';
 import { TrashIcon, EditIcon } from '../components/common/Icons';
 
@@ -14,7 +14,7 @@ const UserProfileView = ({ profile, blogs = [], currentUser, onFollow, allUsers 
 
     if (!profile) {
        console.warn("UserProfileView rendered without profile data.");
-       return null; 
+       return null;
     }
 
     return (
@@ -54,10 +54,10 @@ const UserProfileView = ({ profile, blogs = [], currentUser, onFollow, allUsers 
                                     <img
                                         src={blog.imageUrl || 'https://placehold.co/600x400?text=No+Image'}
                                         alt={blog.title || 'Blog post image'}
-                                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" 
+                                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                                         onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/600x400?text=Image+Error'; }}
                                     />
-                                    <div className="p-4"> 
+                                    <div className="p-4">
                                         <h3 className="font-bold text-white truncate text-lg">{blog.title || 'Untitled Post'}</h3>
                                     </div>
                                      {isOwnProfile && blog.status === 'draft' && (
@@ -67,25 +67,18 @@ const UserProfileView = ({ profile, blogs = [], currentUser, onFollow, allUsers 
                                         <span className="absolute top-2 left-2 bg-blue-500 text-white text-xs font-semibold px-2 py-0.5 rounded z-10">Scheduled</span>
                                      )}
                                 </div>
-
                                 {isOwnProfile && (
                                     <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                         <button
-                                             onClick={(e) => {
-                                                 e.stopPropagation(); 
-                                                 openModal('createPost', blog); 
-                                             }}
-                                             className="p-1.5 bg-blue-600/70 rounded-full text-white hover:bg-blue-700 transition" 
+                                             onClick={(e) => { e.stopPropagation(); openModal('createPost', blog); }}
+                                             className="p-1.5 bg-blue-600/70 rounded-full text-white hover:bg-blue-700 transition"
                                              aria-label="Edit Post"
                                          >
                                              <EditIcon className="w-4 h-4" />
                                          </button>
                                         <button
-                                            onClick={(e) => {
-                                                e.stopPropagation(); 
-                                                onDeletePost(blog._id); 
-                                            }}
-                                            className="p-1.5 bg-red-600/70 rounded-full text-white hover:bg-red-700 transition" 
+                                            onClick={(e) => { e.stopPropagation(); onDeletePost(blog._id); }}
+                                            className="p-1.5 bg-red-600/70 rounded-full text-white hover:bg-red-700 transition"
                                             aria-label="Delete Post"
                                         >
                                             <TrashIcon className="w-4 h-4" />
@@ -96,19 +89,11 @@ const UserProfileView = ({ profile, blogs = [], currentUser, onFollow, allUsers 
                         ))}
                     </div>
 
-                     {Array.isArray(blogs) && blogs.length === 0 && !postError && ( 
-                         <div className="text-center text-gray-400 py-16"> 
+                     {Array.isArray(blogs) && blogs.length === 0 && !postError && (
+                         <div className="text-center text-gray-400 py-16">
                             <p className="text-lg">
                                 {isOwnProfile ? "You haven't created any posts yet." : "This user hasn't published any posts yet."}
                             </p>
-                            {isOwnProfile && (
-                                <button
-                                    onClick={() => openModal('createPost')}
-                                    className="mt-4 bg-indigo-500 text-white font-semibold py-2 px-6 rounded-full hover:bg-indigo-600 transition-colors"
-                                >
-                                    Create Your First Post
-                                </button>
-                            )}
                          </div>
                      )}
                 </div>
@@ -119,10 +104,7 @@ const UserProfileView = ({ profile, blogs = [], currentUser, onFollow, allUsers 
                     <BlogPostModal
                         blog={postModal}
                         currentUser={currentUser}
-                        onEdit={(blogToEdit) => {
-                            closePostModal();
-                            openModal('createPost', blogToEdit);
-                        }}
+                        onEdit={(blogToEdit) => { closePostModal(); openModal('createPost', blogToEdit); }}
                     />
                  </Modal>
             )}

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import DashboardView from './DashboardView';
 import Modal from '../components/common/Modal';
+import ConfirmationModal from '../components/common/ConfirmationModal';
 import ModalContent from '../components/modals/ModalContent';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../hooks/useAuth';
 import { postService } from '../api/postService';
+import { commentService } from '../api/commentService';
 import Spinner from '../components/common/Spinner';
 
 export default function DashboardPage() {
@@ -19,9 +21,14 @@ export default function DashboardPage() {
         updatePostState,
         fetchPosts,
         loading: contextLoading,
-        addPost: addPostToContext, 
+        addPost: addPostToContext,
         deletePost: deletePostFromContext
     } = useAppContext();
+
+    const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+    const [confirmAction, setConfirmAction] = useState(null);
+    const [confirmData, setConfirmData] = useState(null); 
+    const [confirmMessage, setConfirmMessage] = useState('');
 
     useEffect(() => {
         if (!contextLoading && currentUser && posts.length === 0) {
@@ -52,39 +59,88 @@ export default function DashboardPage() {
     };
 
     const handleComment = async (blogId, text) => {
-         if (!text || !currentUser || !blogId) {
-             console.error("handleComment: Missing data", { text, currentUser, blogId });
-             return;
-         };
-         console.log(`Attempting to add comment '${text}' to post ${blogId}`); 
-         try {
-             await postService.addComment(blogId, text);
-             console.log(`Comment added via service for post ${blogId}`); 
-             
-             const refreshedPost = await postService.getPostById(blogId);
-             if (refreshedPost) {
-                 console.log(`Refreshed post ${blogId} after comment:`, refreshedPost); 
-                 updatePostState(refreshedPost); 
-             } else {
-                 console.warn(`Post ${blogId} not found after adding comment. Refetching all.`);
-                 await fetchPosts(); 
-             }
-         } catch (error) {
-             console.error(`Failed to add comment to post ${blogId}:`, error.response?.data?.message || error.message);
-             
-             alert(`Failed to add comment: ${error.response?.data?.message || 'Please try again.'}`);
-         }
-     };
+        if (!text || !currentUser || !blogId) {
+            console.error("handleComment: Missing data", { text, currentUser, blogId });
+            return;
+        };
+        console.log(`Attempting to add comment '${text}' to post ${blogId}`);
+        try {
+            await commentService.addComment(blogId, text);
+            console.log(`Comment added via service for post ${blogId}`);
 
-    const handleDelete = async (blogId) => {
-        if (window.confirm('Are you sure you want to delete this blog?')) {
-            try { await deletePostFromContext(blogId); }
-            catch (error) { console.error("Failed to delete post:", error.response?.data?.message || error.message); }
+            const refreshedPost = await postService.getPostById(blogId);
+            if (refreshedPost) {
+                console.log(`Refreshed post ${blogId} after comment:`, refreshedPost);
+                updatePostState(refreshedPost);
+            } else {
+                console.warn(`Post ${blogId} not found after adding comment. Refetching all.`);
+                await fetchPosts();
+            }
+        } catch (error) {
+            console.error(`Failed to add comment to post ${blogId}:`, error.response?.data?.message || error.message);
+
+            alert(`Failed to add comment: ${error.response?.data?.message || 'Please try again.'}`);
+        }
+    };
+    const handleUpdateComment = async (commentId, blogId, newText) => {
+        if (!newText || !commentId || !blogId) return;
+        try {
+            await commentService.updateComment(commentId, newText);
+            const refreshedPost = await postService.getPostById(blogId);
+            if (refreshedPost) {
+                updatePostState(refreshedPost);
+            } else { await fetchPosts(); }
+        } catch (error) {
+            console.error(`Failed to update comment ${commentId}:`, error.response?.data?.message || error.message);
+            alert(`Failed to update comment: ${error.response?.data?.message || 'Please try again.'}`);
+        }
+    };
+    const handleDeleteComment = async (commentId, blogId) => {
+        if (!commentId || !blogId) return;
+        try {
+            await commentService.deleteComment(commentId);
+            const refreshedPost = await postService.getPostById(blogId);
+            if (refreshedPost) {
+                updatePostState(refreshedPost);
+            } else { await fetchPosts(); }
+        } catch (error) {
+            console.error(`Failed to delete comment ${commentId}:`, error.response?.data?.message || error.message);
+            alert(`Failed to delete comment: ${error.response?.data?.message || 'Please try again.'}`);
         }
     };
 
+    const handleDelete = (blogId) => {
+        setConfirmMessage('Are you sure you want to delete this post? This action cannot be undone.');
+        setConfirmData(blogId); 
+        setConfirmAction(() => async () => {
+            try {
+                await deletePostFromContext(blogId);
+                console.log(`Post ${blogId} deleted.`);
+            } catch (error) {
+                console.error("Failed to delete post:", error.response?.data?.message || error.message);
+                alert(`Failed to delete post: ${error.response?.data?.message || 'Please try again.'}`);
+            }
+        });
+        setConfirmModalOpen(true);
+    };
+
+    const handleConfirm = async () => {
+        if (typeof confirmAction === 'function') {
+            await confirmAction(); 
+        }
+        setConfirmModalOpen(false); 
+        setConfirmAction(null);
+        setConfirmData(null);
+    };
+
+    const handleCancelConfirm = () => {
+        setConfirmModalOpen(false);
+        setConfirmAction(null);
+        setConfirmData(null);
+    };
+
     const handleBlogSubmit = async (blogData) => {
-        try { await addPostToContext(blogData); closeModal(); } 
+        try { await addPostToContext(blogData); closeModal(); }
         catch (error) { console.error("Failed to save blog post:", error.response?.data?.message || error.message); }
     };
 
@@ -110,7 +166,7 @@ export default function DashboardPage() {
     const navigateToProfile = (userToNav) => {
         closeModal();
         console.log("navigateToProfile called with:", userToNav);
-        const userId = userToNav?.id || userToNav?._id; 
+        const userId = userToNav?.id || userToNav?._id;
         if (userId && typeof userId === 'string') {
             console.log("Extracted ID:", userId, "Navigating to:", `/profile/${userId}`);
             navigate(`/profile/${userId}`);
@@ -146,6 +202,8 @@ export default function DashboardPage() {
                 openModal={openModal}
                 navigateTo={navigateToProfile}
                 onFollow={handleFollow}
+                onUpdateComment={handleUpdateComment}
+                onDeleteComment={handleDeleteComment}
             />
             {modalContent && (
                 <Modal onClose={closeModal} title={modalContent.type.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} size={modalContent.type === 'createPost' || modalContent.type === 'editProfile' ? 'xl' : 'md'}>
@@ -164,6 +222,14 @@ export default function DashboardPage() {
                     />
                 </Modal>
             )}
+            <ConfirmationModal
+                isOpen={confirmModalOpen}
+                onClose={handleCancelConfirm}
+                onConfirm={handleConfirm}
+                title="Confirm Deletion"
+                message={confirmMessage}
+                confirmText="Delete"
+            />
         </>
     );
 }

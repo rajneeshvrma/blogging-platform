@@ -145,45 +145,4 @@ export const postService = {
             throw error;
         }
     },
-
-    addComment: async (postId, text) => {
-        const config = getAuthConfig();
-        if (!config) throw new Error("Authentication required to comment.");
-        console.log(`postService.addComment: Posting to /api/comments`, { postId, text });
-        try {
-            const { data } = await axios.post('/api/comments', { postId, text }, config);
-            console.log(`postService.addComment: Response data:`, data);
-            return {
-                ...data,
-                id: data._id,
-                user: {
-                    ...data.user,
-                    id: data.user._id
-                }
-            };
-        } catch (error) {
-            console.error(`postService.addComment: Failed for post ${postId}:`, error.response?.data || error.message);
-            throw error;
-        }
-    },
-
-    getComments: async (postId) => {
-        const config = getAuthConfig();
-        if (!config) return [];
-        try {
-            const { data } = await axios.get(`/api/comments/${postId}`, config);
-            return data.map(comment => ({
-                ...comment,
-                id: comment._id,
-                user: {
-                    id: comment.user?._id,
-                    name: comment.user?.name || 'Unknown User',
-                    avatar: comment.user?.avatar || `https://i.pravatar.cc/150?u=${comment.user?._id || 'default'}`
-                }
-            }));
-        } catch (error) {
-            console.error(`Failed to fetch comments for post ${postId}:`, error.response?.data?.message || error.message);
-            return [];
-        }
-    }
 };

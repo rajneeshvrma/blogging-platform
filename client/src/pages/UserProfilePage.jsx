@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useAppContext } from '../hooks/useAuth';
 import UserProfileView from './UserProfileView';
 import Modal from '../components/common/Modal';
+import ConfirmationModal from '../components/common/ConfirmationModal';
 import ModalContent from '../components/modals/ModalContent';
 import Spinner from '../components/common/Spinner';
 
@@ -17,6 +18,10 @@ const UserProfilePage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [modalContent, setModalContent] = useState(null);
+    const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+    const [confirmAction, setConfirmAction] = useState(null);
+    const [confirmData, setConfirmData] = useState(null);
+    const [confirmMessage, setConfirmMessage] = useState('');
 
     const fetchUserPosts = async (profileId) => {
         if (!loggedInUser?.token || !profileId) return;
@@ -50,11 +55,11 @@ const UserProfilePage = () => {
                     setError('User profile data not found.');
                 }
             } catch (err) {
-                 console.error("Error fetching profile:", err);
-                 const message = err.response?.status === 404 ? 'User not found.' : (err.response?.data?.message || err.message || 'Failed to load profile.');
-                 setError(message);
+                console.error("Error fetching profile:", err);
+                const message = err.response?.status === 404 ? 'User not found.' : (err.response?.data?.message || err.message || 'Failed to load profile.');
+                setError(message);
             } finally {
-                 setLoading(false);
+                setLoading(false);
             }
         };
         fetchUserProfileAndPosts();
@@ -62,67 +67,86 @@ const UserProfilePage = () => {
 
     const closeModal = () => setModalContent(null);
     const openModal = (type, data) => {
-         let modalData = { ...data };
-         if (type === 'search') {
-             modalData = { ...data, allUsers: contextAllUsers, blogs: userBlogs };
-         } else if (type === 'likers' && Array.isArray(data)) {
-             const likerIds = data.map(like => typeof like === 'string' ? like : (like._id || like.id)).filter(Boolean);
-             modalData = contextAllUsers.filter(u => likerIds.includes(u._id || u.id));
-         } else if ((type === 'followers' || type === 'following') && data && Array.isArray(data.list)) {
-             const userIds = data.list.map(item => typeof item === 'string' ? item : (item._id || item.id)).filter(Boolean);
-             const userList = contextAllUsers.filter(u => userIds.includes(u._id || u.id));
-             modalData = { ...data, list: userList };
-         }
-         setModalContent({ type, data: modalData });
-     };
+        let modalData = { ...data };
+        if (type === 'search') {
+            modalData = { ...data, allUsers: contextAllUsers, blogs: userBlogs };
+        } else if (type === 'likers' && Array.isArray(data)) {
+            const likerIds = data.map(like => typeof like === 'string' ? like : (like._id || like.id)).filter(Boolean);
+            modalData = contextAllUsers.filter(u => likerIds.includes(u._id || u.id));
+        } else if ((type === 'followers' || type === 'following') && data && Array.isArray(data.list)) {
+            const userIds = data.list.map(item => typeof item === 'string' ? item : (item._id || item.id)).filter(Boolean);
+            const userList = contextAllUsers.filter(u => userIds.includes(u._id || u.id));
+            modalData = { ...data, list: userList };
+        }
+        setModalContent({ type, data: modalData });
+    };
 
     const handleProfileUpdate = async (updatedData) => {
-         if (!loggedInUser || loggedInUser._id !== userId) return;
-         try {
-             const config = { headers: { Authorization: `Bearer ${loggedInUser.token}`, 'Content-Type': 'application/json' } };
-             const { data: updatedUser } = await axios.put('/api/users/profile', updatedData, config);
-             const finalUpdatedUser = { ...updatedUser, id: updatedUser._id };
-             setProfileToDisplay(finalUpdatedUser);
-             setLoggedInUser(finalUpdatedUser);
-             closeModal();
-         } catch(err) {
-             console.error("Failed to update profile", err);
-             setError(err.response?.data?.message || 'Failed to update profile.');
-         }
+        if (!loggedInUser || loggedInUser._id !== userId) return;
+        try {
+            const config = { headers: { Authorization: `Bearer ${loggedInUser.token}`, 'Content-Type': 'application/json' } };
+            const { data: updatedUser } = await axios.put('/api/users/profile', updatedData, config);
+            const finalUpdatedUser = { ...updatedUser, id: updatedUser._id };
+            setProfileToDisplay(finalUpdatedUser);
+            setLoggedInUser(finalUpdatedUser);
+            closeModal();
+        } catch (err) {
+            console.error("Failed to update profile", err);
+            setError(err.response?.data?.message || 'Failed to update profile.');
+        }
     };
 
     const handleBlogSubmit = async (blogData) => {
-         const isEditing = !!blogData.id || !!blogData._id;
-         const postId = blogData.id || blogData._id;
-         try {
-             const config = { headers: { Authorization: `Bearer ${loggedInUser.token}`, 'Content-Type': 'application/json' } };
-             const { id, _id, ...payload } = blogData;
-             if (isEditing && postId) { await axios.put(`/api/posts/${postId}`, payload, config); }
-             else { await axios.post('/api/posts', payload, config); }
-             if(profileToDisplay?._id){ await fetchUserPosts(profileToDisplay._id); }
-             closeModal();
-         } catch (err) {
-             console.error("Failed to save post", err);
-             setError(err.response?.data?.message || "Failed to save post.");
-         }
+        const isEditing = !!blogData.id || !!blogData._id;
+        const postId = blogData.id || blogData._id;
+        try {
+            const config = { headers: { Authorization: `Bearer ${loggedInUser.token}`, 'Content-Type': 'application/json' } };
+            const { id, _id, ...payload } = blogData;
+            if (isEditing && postId) { await axios.put(`/api/posts/${postId}`, payload, config); }
+            else { await axios.post('/api/posts', payload, config); }
+            if (profileToDisplay?._id) { await fetchUserPosts(profileToDisplay._id); }
+            closeModal();
+        } catch (err) {
+            console.error("Failed to save post", err);
+            setError(err.response?.data?.message || "Failed to save post.");
+        }
     };
 
-    const handleDelete = async (blogId) => {
-         if (window.confirm('Are you sure you want to delete this post?')) {
-             try {
+    const handleDelete = (blogId) => {
+        setConfirmMessage('Are you sure you want to delete this post? This action cannot be undone.');
+        setConfirmData(blogId);
+        setConfirmAction(() => async () => { 
+            try {
                 const config = { headers: { Authorization: `Bearer ${loggedInUser.token}` } };
                 await axios.delete(`/api/posts/${blogId}`, config);
                 setUserBlogs(prevBlogs => prevBlogs.filter(blog => (blog._id || blog.id) !== blogId));
             } catch (err) {
                 console.error('Failed to delete post', err);
                 setError(err.response?.data?.message || 'Failed to delete post');
+                alert(`Failed to delete post: ${err.response?.data?.message || 'Please try again.'}`);
             }
-        }
+        });
+        setConfirmModalOpen(true);
     };
 
     const handleFollow = (idToFollow) => {
         console.log(`Toggling follow for user ID: ${idToFollow}`);
         setError("Follow functionality not implemented yet.");
+    };
+
+    const handleConfirm = async () => {
+        if (typeof confirmAction === 'function') {
+            await confirmAction(); 
+        }
+        setConfirmModalOpen(false); 
+        setConfirmAction(null);
+        setConfirmData(null);
+    };
+
+    const handleCancelConfirm = () => {
+        setConfirmModalOpen(false);
+        setConfirmAction(null);
+        setConfirmData(null);
     };
 
     if (loading) { return <div className="flex justify-center items-center min-h-screen"><Spinner /></div>; }
@@ -152,7 +176,7 @@ const UserProfilePage = () => {
                         onClose={closeModal}
                         currentUser={loggedInUser}
                         onFollow={handleFollow}
-                        onProfileClick={(user) => { 
+                        onProfileClick={(user) => {
                             const navUserId = user._id || user.id;
                             if (navUserId) { navigate(`/profile/${navUserId}`) }
                             else { console.error("ModalContent: Cannot navigate, user ID missing", user) }
@@ -162,6 +186,14 @@ const UserProfilePage = () => {
                     />
                 </Modal>
             )}
+            <ConfirmationModal
+                isOpen={confirmModalOpen}
+                onClose={handleCancelConfirm}
+                onConfirm={handleConfirm}
+                title="Confirm Deletion"
+                message={confirmMessage}
+                confirmText="Delete"
+            />
         </>
     );
 };

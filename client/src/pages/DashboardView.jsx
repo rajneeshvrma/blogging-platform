@@ -3,7 +3,8 @@ import BlogPost from '../components/post/BlogPost';
 import ProfileCard from '../components/profile/ProfileCard';
 import { NewPostCard, SearchCard, TrendingCard, SuggestionsCard } from '../components/dashboard/SidebarComponents';
 
-const DashboardView = ({ blogs, currentUser, allUsers, visibleBlogs, setVisibleBlogs, handleLike, handleComment, handleDelete, openModal, navigateTo, onFollow }) => (
+const DashboardView = ({ blogs, currentUser, allUsers, visibleBlogs, setVisibleBlogs, handleLike, 
+    handleComment, handleDelete, openModal, navigateTo, onFollow, onUpdateComment, onDeleteComment }) => (
     <main className="container mx-auto p-4 md:px-6 pt-24">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <aside className="hidden lg:block lg:col-span-1">
@@ -27,6 +28,8 @@ const DashboardView = ({ blogs, currentUser, allUsers, visibleBlogs, setVisibleB
                         onLikersClick={() => openModal('likers', blog.likes)}
                         onProfileClick={navigateTo}
                         index={index}
+                        onUpdateComment={onUpdateComment}
+                        onDeleteComment={onDeleteComment}
                     />
                 ))}
                 {visibleBlogs < blogs.length && (

@@ -1,11 +1,19 @@
 import express from 'express';
-import { createComment, getCommentsByPostId } from '../controllers/commentController.js';
+import {
+    createComment,
+    getCommentsByPostId,
+    updateComment, 
+    deleteComment  
+} from '../controllers/commentController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Note: The route to get comments is associated with a post ID
-router.route('/:postId').get(getCommentsByPostId);
 router.route('/').post(protect, createComment);
+
+router.route('/:postId').get(getCommentsByPostId); 
+router.route('/:id')
+    .put(protect, updateComment)  
+    .delete(protect, deleteComment); 
 
 export default router;
