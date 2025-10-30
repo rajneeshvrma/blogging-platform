@@ -5,7 +5,7 @@ import { NewPostCard, SearchCard, TrendingCard, SuggestionsCard } from '../compo
 
 const DashboardView = ({ blogs, currentUser, allUsers, visibleBlogs, setVisibleBlogs, handleLike, 
     handleComment, handleDelete, openModal, navigateTo, onFollow, onUpdateComment, onDeleteComment }) => (
-    <main className="container mx-auto p-4 md:px-6 pt-24">
+    <main className="container mx-auto p-4 md:px-6 pt-28">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <aside className="hidden lg:block lg:col-span-1">
                 <div className="sticky top-24 space-y-8">

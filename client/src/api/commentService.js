@@ -41,7 +41,7 @@ export const commentService = {
                 user: {
                     id: comment.user?._id,
                     name: comment.user?.name || 'Unknown User',
-                    avatar: comment.user?.avatar || `https://i.pravatar.cc/150?u=${comment.user?._id || 'default'}`
+                    avatar: comment.user?.avatar || `https://placehold.net/avatar-4.svg`
                 }
             }));
         } catch (error) {

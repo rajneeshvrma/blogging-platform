@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAppContext } from '../hooks/useAuth';
 import Button from '../components/common/Button';
 
-// A simple, reusable input for non-password fields
 const FormInput = ({ id, label, type, value, onChange, placeholder, required = true }) => (
     <div>
         <label htmlFor={id} className="text-sm font-medium text-text-secondary">{label}</label>
@@ -21,7 +20,6 @@ const FormInput = ({ id, label, type, value, onChange, placeholder, required = t
     </div>
 );
 
-// New: A dedicated component for password inputs with a show/hide toggle
 const PasswordInput = ({ id, label, value, onChange, placeholder }) => {
     const [isVisible, setIsVisible] = useState(false);
     const toggleVisibility = () => setIsVisible(prev => !prev);
@@ -46,12 +44,10 @@ const PasswordInput = ({ id, label, value, onChange, placeholder }) => {
                     className="absolute inset-y-0 right-0 px-3 flex items-center text-text-secondary hover:text-text-primary"
                 >
                     {isVisible ? (
-                        // Hide Icon (Eye with slash)
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a9.97 9.97 0 01-1.563 3.029m0 0l-2.117-2.117" />
                         </svg>
                     ) : (
-                        // Show Icon (Eye)
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" />
@@ -64,7 +60,6 @@ const PasswordInput = ({ id, label, value, onChange, placeholder }) => {
 };
 
 const PasswordStrengthIndicator = ({ strength }) => {
-    // ... (This component remains unchanged from the previous version)
     const strengthLabels = ["Weak", "Medium", "Strong", "Very Strong"];
     const strengthColors = ["bg-red-500", "bg-orange-500", "bg-yellow-500", "bg-green-500"];
     return (
@@ -100,14 +95,17 @@ const AuthPage = () => {
         );
     }
 
-    return (
-        <div className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden">
-            <video autoPlay loop muted className="absolute inset-0 w-full h-full object-cover -z-10" src="https://assets.mixkit.co/videos/preview/mixkit-abstract-blue-and-pink-lines-of-light-35111-large.mp4" />
+    const backgroundImageUrl = "url('https://picsum.photos/1920/1080')";
 
-            {/* Change: Layout is restored to the larger, split-panel container */}
+    return (
+        <div className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden isolate">
+            <div
+                className="fixed inset-0 w-full h-full object-cover -z-10 bg-cover bg-center opacity-25"
+                style={{ backgroundImage: backgroundImageUrl }}
+                aria-hidden="true"
+            />
             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, ease: "easeOut" }} className="relative w-full max-w-4xl h-[600px] bg-white/5 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/10 overflow-hidden" >
                 <div className="w-full h-full relative overflow-hidden">
-                    {/* Form Panel */}
                     <motion.div animate={{ x: isLogin ? '0%' : '100%' }} transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }} className="absolute top-0 left-0 w-1/2 h-full p-8 md:p-12 z-20 flex flex-col justify-center">
                         <AnimatePresence mode="wait">
                             <motion.div key={isLogin ? 'login' : 'register'} initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }} transition={{ duration: 0.5 }} >
@@ -116,14 +114,13 @@ const AuthPage = () => {
                         </AnimatePresence>
                     </motion.div>
 
-                    {/* Change: The Image Panel is back */}
                     <motion.div animate={{ x: isLogin ? '0%' : '-100%' }} transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }} className="absolute top-0 right-0 w-1/2 h-full z-50" >
-                        <div className="w-full h-full bg-cover bg-center" style={{ backgroundImage: "url('https://placehold.co/600x800/1B263B/415A77?text=GlassBlog')" }}>
+                        <div className="w-full h-full bg-cover bg-center opacity-70" style={{ backgroundImage: backgroundImageUrl }}>
                             <div className="w-full h-full bg-black/30 p-8 flex flex-col justify-end text-white">
                                 <AnimatePresence mode="wait">
                                     <motion.div key={isLogin ? 'join' : 'welcome'} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5 }} >
-                                        <h2 className="text-3xl font-bold">{isLogin ? 'Join a Community of Thinkers' : 'Welcome Back!'}</h2>
-                                        <p className="text-gray-300 mt-2">{isLogin ? 'Share your ideas, connect with others, and grow your audience.' : 'Login and pick up where you left off. We missed you!'}</p>
+                                        <h2 className="text-3xl font-bold">{isLogin ? 'Welcome Back!' : 'Join a Community of Thinkers'}</h2>
+                                        <p className="text-gray-300 mt-2">{isLogin ? 'Login and pick up where you left off. We missed you!' : 'Share your ideas, connect with others, and grow your audience.'}</p>
                                     </motion.div>
                                 </AnimatePresence>
                             </div>
@@ -136,7 +133,6 @@ const AuthPage = () => {
 };
 
 const LoginForm = ({ toggleAuthMode }) => {
-    // ... (logic and state are the same)
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -161,7 +157,6 @@ const LoginForm = ({ toggleAuthMode }) => {
             <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                 {error && <p className="text-red-400 text-center">{error}</p>}
                 <motion.div variants={formItemVariants}><FormInput id="email" label="Email Address" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" /></motion.div>
-                {/* Change: Using the new PasswordInput component */}
                 <motion.div variants={formItemVariants}><PasswordInput id="password" label="Password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" /></motion.div>
                 <motion.div variants={formItemVariants}><Button type="submit" isLoading={isLoading}>Sign in</Button></motion.div>
             </form>
@@ -174,7 +169,6 @@ const LoginForm = ({ toggleAuthMode }) => {
 };
 
 const RegisterForm = ({ toggleAuthMode }) => {
-    // ... (logic and state are the same as the previous version)
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -209,12 +203,10 @@ const RegisterForm = ({ toggleAuthMode }) => {
                 <motion.div variants={formItemVariants}><FormInput id="name" label="Full Name" type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Your Name" /></motion.div>
                 <motion.div variants={formItemVariants}><FormInput id="email" label="Email Address" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" /></motion.div>
                 <motion.div variants={formItemVariants}>
-                    {/* Change: Using the new PasswordInput component */}
                     <PasswordInput id="password" label="Password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" />
                     {password.length > 0 && <PasswordStrengthIndicator strength={strength} />}
                 </motion.div>
                 <motion.div variants={formItemVariants}>
-                    {/* Change: Using the new PasswordInput component for confirmation */}
                     <PasswordInput id="confirmPassword" label="Confirm Password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="••••••••" />
                 </motion.div>
                 <motion.div variants={formItemVariants}><Button type="submit" isLoading={isLoading}>Create Account</Button></motion.div>

@@ -23,7 +23,7 @@ export const postService = {
                  author: {
                      id: post.author?._id || post.author, 
                      name: post.author?.name || 'Unknown Author',
-                     avatar: post.author?.avatar || `https://i.pravatar.cc/150?u=${post.author?._id || post.author || 'default'}`
+                     avatar: post.author?.avatar || `https://placehold.net/avatar-4.svg`
                  }
              }));
         } catch (error) {
@@ -45,7 +45,7 @@ export const postService = {
                 author: { 
                     id: data.author?._id || data.author?.id,
                     name: data.author?.name || 'Unknown Author',
-                    avatar: data.author?.avatar || `https://i.pravatar.cc/150?u=${data.author?._id || data.author?.id || 'default'}`
+                    avatar: data.author?.avatar || `https://placehold.net/avatar-4.svg`
                 },
                 comments: Array.isArray(data.comments) ? data.comments.map(c => ({
                     ...(c || {}), 
@@ -76,7 +76,7 @@ export const postService = {
                  author: {
                      id: data.author?._id || data.author?.id,
                      name: data.author?.name || 'Unknown Author',
-                     avatar: data.author?.avatar || `https://i.pravatar.cc/150?u=${data.author?._id || data.author?.id || 'default'}`
+                     avatar: data.author?.avatar || `https://placehold.net/avatar-4.svg`
                  },
                  comments: data.comments || [], 
                  likes: data.likes || [] 
@@ -99,7 +99,7 @@ export const postService = {
                  author: {
                      id: data.author?._id || data.author?.id,
                      name: data.author?.name || 'Unknown Author',
-                     avatar: data.author?.avatar || `https://i.pravatar.cc/150?u=${data.author?._id || data.author?.id || 'default'}`
+                     avatar: data.author?.avatar || `https://placehold.net/avatar-4.svg`
                  },
                  comments: data.comments || [],
                  likes: data.likes || []

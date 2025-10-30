@@ -43,7 +43,7 @@ const BlogPost = ({ blog, currentUser, onLike, onComment, onEdit, onDelete, onSh
     };
 
     const authorName = blog.author?.name || 'Unknown Author';
-    const authorAvatar = blog.author?.avatar || `https://i.pravatar.cc/150?u=${blog.author?._id || blog.author?.id || 'default'}`;
+    const authorAvatar = blog.author?.avatar || `https://placehold.net/avatar-4.svg`;
     const authorId = blog.author?._id || blog.author?.id || blog.author;
 
     const handleProfileClick = () => {
@@ -233,7 +233,7 @@ const BlogPost = ({ blog, currentUser, onLike, onComment, onEdit, onDelete, onSh
                 )}
                 <form onSubmit={handleCommentSubmit} className="flex items-center mt-2">
                     <img
-                        src={currentUser.avatar || `https://i.pravatar.cc/150?u=${currentUserId}`}
+                        src={currentUser.avatar || `https://placehold.net/avatar-4.svg`}
                         alt="You"
                         className="w-8 h-8 rounded-full mr-2"
                     />

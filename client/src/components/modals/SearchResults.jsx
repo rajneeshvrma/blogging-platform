@@ -33,7 +33,7 @@ const SearchResults = ({ data, onProfileClick, onClose }) => {
                              className="w-full text-left flex items-center p-2 rounded-lg hover:bg-white/10 transition-colors text-text-primary"
                          >
                              <img
-                                src={user.avatar || `https://i.pravatar.cc/150?u=${user.id}`} 
+                                src={user.avatar || `https://placehold.net/avatar-4.svg`} 
                                 className="w-8 h-8 rounded-full mr-3"
                                 alt={user.name}
                              />

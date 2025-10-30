@@ -6,11 +6,11 @@ const ProfileCard = ({ user, onProfileClick, onFollowersClick, onFollowingClick 
 
     const avatarUrl = user?.avatar
         ? user.avatar
-        : `https://api.dicebear.com/8.x/initials/svg?seed=${user?.name || 'User'}`;
+        : `https://placehold.net/avatar-4.svg`;
 
     const coverPhotoUrl = user?.coverPhoto
         ? user.coverPhoto
-        : `https://source.unsplash.com/random/600x200/?abstract,minimal`; 
+        : `https://placehold.net/7-600x800.png`; 
 
     return (
         <div className="bg-glass backdrop-blur-xl border border-glass rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-indigo-500/30 animate-fade-in">

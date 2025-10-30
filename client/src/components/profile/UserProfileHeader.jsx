@@ -21,22 +21,29 @@ const UserProfileHeader = ({ profile, currentUser, onFollow, onEditProfile, onFo
 
     return (
         <div className="bg-glass backdrop-blur-xl border border-glass rounded-2xl shadow-lg overflow-hidden">
-            <img src={profile.coverPhoto} alt="Cover" className="w-full h-48 object-cover" />
+            <img
+                src={profile.coverPhoto || 'https://placehold.net/7-600x800.png'}
+                alt="Cover"
+                className="w-full h-48 object-cover"
+            />
             <div className="p-6 relative">
                 <div className="flex justify-between items-start">
-                    <img src={profile.avatar} alt={profile.name} className="w-32 h-32 rounded-full -mt-20 border-4 border-background shadow-md" />
-                    <div className="pt-16"> 
+                    <img
+                        src={profile.avatar || 'https://placehold.net/avatar-4.svg'}
+                        alt={profile.name}
+                        className="w-32 h-32 rounded-full -mt-20 border-4 border-background shadow-md"
+                    />
+                    <div className="pt-16">
                         {isOwnProfile ? (
                             <button onClick={() => onEditProfile(profile)} className="bg-white/20 dark:bg-black/20 text-text-primary font-semibold py-2 px-4 rounded-full hover:bg-white/30 dark:hover:bg-black/30 transition-colors">Edit Profile</button>
                         ) : (
                             <button
                                 onClick={() => onFollow(profile._id)}
                                 disabled={isFollowingProcessing}
-                                className={`py-2 px-6 rounded-full font-semibold transition-colors flex items-center justify-center min-w-[120px] ${
-                                    isFollowing
-                                    ? 'bg-white/20 dark:bg-black/20 text-text-primary hover:bg-white/30 dark:hover:bg-black/30 disabled:bg-opacity-50'
-                                    : 'bg-indigo-500 text-white hover:bg-indigo-600 disabled:bg-indigo-400'
-                                } disabled:cursor-not-allowed`}
+                                className={`py-2 px-6 rounded-full font-semibold transition-colors flex items-center justify-center min-w-[120px] ${isFollowing
+                                        ? 'bg-white/20 dark:bg-black/20 text-text-primary hover:bg-white/30 dark:hover:bg-black/30 disabled:bg-opacity-50'
+                                        : 'bg-indigo-500 text-white hover:bg-indigo-600 disabled:bg-indigo-400'
+                                    } disabled:cursor-not-allowed`}
                             >
                                 {isFollowingProcessing ? <Spinner small /> : (isFollowing ? 'Following' : 'Follow')}
                             </button>
@@ -49,7 +56,7 @@ const UserProfileHeader = ({ profile, currentUser, onFollow, onEditProfile, onFo
                     {websiteUrl && (
                         <a href={websiteUrl} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-indigo-400">
                             <FiLink className="mr-1" />
-                             {profile.website}
+                            {profile.website}
                         </a>
                     )}
                     {twitterUrl && (

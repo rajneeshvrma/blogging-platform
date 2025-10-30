@@ -188,49 +188,57 @@ export default function DashboardPage() {
         return <div className="pt-24 text-center text-lg text-text-secondary">Please log in to view the dashboard.</div>;
     }
 
+    const dashboardBgUrl = 'https://images.pexels.com/photos/1269968/pexels-photo-1269968.jpeg';
+
     return (
-        <>
-        
-            <DashboardView
-                blogs={feedPosts}
-                currentUser={currentUser}
-                allUsers={allUsers}
-                visibleBlogs={visibleBlogs}
-                setVisibleBlogs={setVisibleBlogs}
-                handleLike={handleLike}
-                handleComment={handleComment}
-                handleDelete={handleDelete}
-                openModal={openModal}
-                navigateTo={navigateToProfile}
-                onFollow={handleFollow}
-                onUpdateComment={handleUpdateComment}
-                onDeleteComment={handleDeleteComment}
+        <div className="relative min-h-screen isolate">
+            <div
+                className="fixed inset-0 -z-10 bg-cover bg-center opacity-15"
+                style={{ backgroundImage: `url(${dashboardBgUrl})` }}
+                aria-hidden="true"
             />
-            {modalContent && (
-                <Modal onClose={closeModal} title={modalContent.type.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} size={modalContent.type === 'createPost' || modalContent.type === 'editProfile' ? 'xl' : 'md'}>
-                    <ModalContent
-                        type={modalContent.type}
-                        data={modalContent.data}
-                        onSaveBlog={handleBlogSubmit}
-                        onSaveProfile={handleProfileUpdate}
-                        onClose={closeModal}
-                        currentUser={currentUser}
-                        onFollow={handleFollow}
-                        onProfileClick={navigateToProfile}
-                        allUsers={allUsers}
-                        openModal={openModal}
-                        blogs={posts}
-                    />
-                </Modal>
-            )}
-            <ConfirmationModal
-                isOpen={confirmModalOpen}
-                onClose={handleCancelConfirm}
-                onConfirm={handleConfirm}
-                title="Confirm Deletion"
-                message={confirmMessage}
-                confirmText="Delete"
-            />
-        </>
+            <div className="relative z-0"> 
+                <DashboardView
+                    blogs={feedPosts}
+                    currentUser={currentUser}
+                    allUsers={allUsers}
+                    visibleBlogs={visibleBlogs}
+                    setVisibleBlogs={setVisibleBlogs}
+                    handleLike={handleLike}
+                    handleComment={handleComment}
+                    handleDelete={handleDelete}
+                    openModal={openModal}
+                    navigateTo={navigateToProfile}
+                    onFollow={handleFollow}
+                    onUpdateComment={handleUpdateComment}
+                    onDeleteComment={handleDeleteComment}
+                />
+                {modalContent && (
+                    <Modal onClose={closeModal} title={modalContent.type.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} size={modalContent.type === 'createPost' || modalContent.type === 'editProfile' ? 'xl' : 'md'}>
+                        <ModalContent
+                            type={modalContent.type}
+                            data={modalContent.data}
+                            onSaveBlog={handleBlogSubmit}
+                            onSaveProfile={handleProfileUpdate}
+                            onClose={closeModal}
+                            currentUser={currentUser}
+                            onFollow={handleFollow}
+                            onProfileClick={navigateToProfile}
+                            allUsers={allUsers}
+                            openModal={openModal}
+                            blogs={posts}
+                        />
+                    </Modal>
+                )}
+                <ConfirmationModal
+                    isOpen={confirmModalOpen}
+                    onClose={handleCancelConfirm}
+                    onConfirm={handleConfirm}
+                    title="Confirm Deletion"
+                    message={confirmMessage}
+                    confirmText="Delete"
+                />                
+            </div>
+        </div>
     );
 }

@@ -181,19 +181,15 @@ const UserProfilePage = () => {
     if (!profileToDisplay) { return <div className="pt-24 text-center text-lg">User profile could not be loaded.</div>; }
     const postLoadingError = error ? error : null;
 
-    const coverPhotoUrl = profileToDisplay.coverPhoto || `https://source.unsplash.com/random/1920x1080/?pattern,texture&sig=${profileToDisplay._id || 'default'}`;
+    const coverPhotoUrl = profileToDisplay.coverPhoto || `https://placehold.net/7-600x800.png`;
 
-    return (<div className="relative min-h-screen">
-            {/* --- Background Div using coverPhotoUrl --- */}
+    return (<div className="relative min-h-screen isolate">
             <div
-                className="fixed inset-0 -z-10 bg-cover bg-center opacity-15" // Adjust opacity as needed
+                className="fixed inset-0 -z-10 bg-cover bg-center opacity-15"
                 style={{ backgroundImage: `url(${coverPhotoUrl})` }}
                 aria-hidden="true"
             />
-            {/* --- End Background Div --- */}
-
-            {/* --- Content Container (Ensure it's above the background) --- */}
-            <div className="relative z-0"> {/* Use z-0 or higher */}
+            <div className="relative z-0">
                 <UserProfileView
                     profile={profileToDisplay}
                     blogs={userBlogs}

@@ -32,7 +32,7 @@ export const AppProvider = ({ children }) => {
                     if (authorId) {
                         authorData.id = authorId;
                         authorData.name = authorDetails?.name || `User ${authorId.slice(-4)}`;
-                        authorData.avatar = authorDetails?.avatar || `https://i.pravatar.cc/150?u=${authorId}`;
+                        authorData.avatar = authorDetails?.avatar || `https://placehold.net/avatar-4.svg`;
                     } else {
                     }
                 }
@@ -115,7 +115,7 @@ export const AppProvider = ({ children }) => {
             author: {
                 id: updatedPostData.author?._id || updatedPostData.author?.id,
                 name: updatedPostData.author?.name || 'Unknown Author',
-                avatar: updatedPostData.author?.avatar || `https://i.pravatar.cc/150?u=${updatedPostData.author?._id || updatedPostData.author?.id || 'default'}`
+                avatar: updatedPostData.author?.avatar || `https://placehold.net/avatar-4.svg'}`
             },
             comments: Array.isArray(updatedPostData.comments) ? updatedPostData.comments.map(comment => ({
                 ...(comment || {}),

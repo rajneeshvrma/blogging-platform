@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 const PostDetailsPage = () => {
-  const { id } = useParams(); // ✅ Correct param name (id instead of slug)
+  const { id } = useParams();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -31,7 +31,7 @@ const PostDetailsPage = () => {
   if (!post) return <div className="text-center mt-10 text-lg">Post not found.</div>;
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-10">
+    <div className="max-w-4xl mx-auto px-6 py-20 pt-28">
       <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
 
       <div className="flex items-center space-x-4 mb-4 text-sm text-gray-400">
@@ -41,7 +41,7 @@ const PostDetailsPage = () => {
 
       <img
         className="w-full h-auto max-h-96 object-cover rounded-lg mb-8"
-        src={post.imageUrl}
+        src={post.imageUrl || 'https://placehold.co/800x400/1B263B/E0E1DD?text=GlassBlog%0ANo+Image'}
         alt={post.title}
         onError={(e) => {
           e.target.onerror = null;

@@ -19,7 +19,7 @@ const UserProfileView = ({ profile, blogs = [], currentUser, onFollow, allUsers 
 
     return (
         <>
-            <main className="container mx-auto p-4 md:px-6 pt-24">
+            <main className="container mx-auto p-4 md:px-6 pt-28">
                 <div className="max-w-4xl mx-auto space-y-8">
                     <UserProfileHeader
                         profile={profile}
@@ -53,7 +53,7 @@ const UserProfileView = ({ profile, blogs = [], currentUser, onFollow, allUsers 
                             >
                                 <div onClick={() => openPostModal(blog)} className="cursor-pointer">
                                     <img
-                                        src={blog.imageUrl || 'https://placehold.co/600x400?text=No+Image'}
+                                        src={blog.imageUrl || '/public/darkmode logo glassblog.png'}
                                         alt={blog.title || 'Blog post image'}
                                         className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                                         onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/600x400?text=Image+Error'; }}

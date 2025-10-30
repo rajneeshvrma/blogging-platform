@@ -24,8 +24,8 @@ const ImageUploadField = ({ label, preview, type, onChange, isCover }) => (
 
 const ProfileEditForm = ({ user, onSave, onCancel }) => {
     const [profileData, setProfileData] = useState(user);
-    const [avatarPreview, setAvatarPreview] = useState(user.avatar);
-    const [coverPreview, setCoverPreview] = useState(user.coverPhoto);
+    const [avatarPreview, setAvatarPreview] = useState(user.avatar || 'https://placehold.net/avatar-4.svg');
+    const [coverPreview, setCoverPreview] = useState(user.coverPhoto || 'https://placehold.net/7-600x800.png');
     const [avatarFile, setAvatarFile] = useState(null);
     const [coverFile, setCoverFile] = useState(null);
     const [isUploading, setIsUploading] = useState(false); 
