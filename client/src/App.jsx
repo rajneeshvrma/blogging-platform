@@ -23,6 +23,7 @@ import DisclaimerPage from './pages/DisclaimerPage';
 import ExploreBlogsPage from './pages/ExploreBlogsPage';
 import CategoriesPage from './pages/CategoriesPage';
 import SearchPage from './pages/SearchPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 const PrivateRoute = ({ children }) => {
     const { isAuthenticated } = useAppContext();
@@ -52,6 +53,7 @@ const AppContent = () => {
                     <Routes>
                         <Route path="/" element={<HomePage />} />
                         <Route path="/auth" element={<AuthPage />} />
+                        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
                         
                         {/* Private Routes */}
                         <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />

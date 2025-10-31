@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAppContext } from '../hooks/useAuth';
-import Button from '../components/common/Button';
+import { useAppContext } from '@/hooks/useAuth';
+import Button from '@/components/common/Button';
+import { authService } from '@/api/authService'; 
 
 const useIsDesktop = () => {
   const [isDesktop, setIsDesktop] = useState(false);
@@ -89,14 +90,22 @@ const formItemVariants = { hidden: { y: 20, opacity: 0 }, visible: { y: 0, opaci
 
 const AuthPage = () => {
     const location = useLocation();
-    const [isLogin, setIsLogin] = useState(location.state?.show !== 'register');
     const navigate = useNavigate();
     const { isAuthenticated, loading } = useAppContext();
-    const toggleAuthMode = (e) => { e?.preventDefault(); setIsLogin(prev => !prev); };
+
+    const [view, setView] = useState(
+        location.state?.show === 'register' ? 'register' : 'login'
+    );
     
     const isDesktop = useIsDesktop(); 
 
-    useEffect(() => { setIsLogin(location.state?.show !== 'register'); }, [location.state]);
+    useEffect(() => {
+        if (location.state?.show === 'register') {
+            setView('register');
+        } else if (location.pathname === '/auth' && view !== 'forgot') {
+            setView('login');
+        }
+    }, [location.state, location.pathname]);
 
     useEffect(() => {
         if (!loading && isAuthenticated) {
@@ -125,28 +134,42 @@ const AuthPage = () => {
                 <div className="w-full h-full relative overflow-hidden">
                     
                     <motion.div 
-                        animate={{ x: isLogin ? '0%' : (isDesktop ? '100%' : '0%') }} 
+                        animate={{ x: view === 'login' ? '0%' : (isDesktop ? '100%' : '0%') }} 
                         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }} 
                         className="absolute top-0 left-0 w-full md:w-1/2 h-full p-8 md:p-12 z-20 flex flex-col justify-center"
                     >
                         <AnimatePresence mode="wait">
-                            <motion.div key={isLogin ? 'login' : 'register'} initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }} transition={{ duration: 0.5 }} >
-                                {isLogin ? <LoginForm toggleAuthMode={toggleAuthMode} /> : <RegisterForm toggleAuthMode={toggleAuthMode} />}
+                            <motion.div 
+                                key={view} 
+                                initial={{ opacity: 0, x: -50 }} 
+                                animate={{ opacity: 1, x: 0 }} 
+                                exit={{ opacity: 0, x: 50 }} 
+                                transition={{ duration: 0.5 }} 
+                            >
+                                {view === 'login' && <LoginForm setView={setView} />}
+                                {view === 'register' && <RegisterForm setView={setView} />}
+                                {view === 'forgot' && <ForgotPasswordForm setView={setView} />}
                             </motion.div>
                         </AnimatePresence>
                     </motion.div>
 
                     <motion.div 
-                        animate={{ x: isLogin ? '0%' : (isDesktop ? '-100%' : '0%') }} 
+                        animate={{ x: view === 'login' ? '0%' : (isDesktop ? '-100%' : '0%') }}
                         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }} 
                         className="hidden md:block absolute top-0 right-0 w-1/2 h-full z-50" 
                     >
                         <div className="w-full h-full bg-cover bg-center opacity-70" style={{ backgroundImage: backgroundImageUrl }}>
                             <div className="w-full h-full bg-black/30 p-8 flex flex-col justify-end text-white">
                                 <AnimatePresence mode="wait">
-                                    <motion.div key={isLogin ? 'join' : 'welcome'} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5 }} >
-                                        <h2 className="text-3xl font-bold">{isLogin ? 'Welcome Back!' : 'Join a Community of Thinkers'}</h2>
-                                        <p className="text-gray-300 mt-2">{isLogin ? 'Login and pick up where you left off. We missed you!' : 'Share your ideas, connect with others, and grow your audience.'}</p>
+                                    <motion.div 
+                                        key={view === 'register' ? 'join' : 'welcome'}
+                                        initial={{ opacity: 0, y: 20 }} 
+                                        animate={{ opacity: 1, y: 0 }} 
+                                        exit={{ opacity: 0, y: -20 }} 
+                                        transition={{ duration: 0.5 }} 
+                                    >
+                                        <h2 className="text-3xl font-bold">{view === 'register' ? 'Join a Community of Thinkers' : 'Welcome Back!'}</h2>
+                                        <p className="text-gray-300 mt-2">{view === 'register' ? 'Share your ideas, connect with others, and grow your audience.' : 'Login and pick up where you left off. We missed you!'}</p>
                                     </motion.div>
                                 </AnimatePresence>
                             </div>
@@ -158,7 +181,7 @@ const AuthPage = () => {
     );
 };
 
-const LoginForm = ({ toggleAuthMode }) => {
+const LoginForm = ({ setView }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -184,17 +207,28 @@ const LoginForm = ({ toggleAuthMode }) => {
                 {error && <p className="text-red-400 text-center">{error}</p>}
                 <motion.div variants={formItemVariants}><FormInput id="email" label="Email Address" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" /></motion.div>
                 <motion.div variants={formItemVariants}><PasswordInput id="password" label="Password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" /></motion.div>
+                
+                <div className="text-right text-sm">
+                    <button 
+                        type="button"
+                        onClick={() => setView('forgot')} 
+                        className="font-medium text-indigo-400 hover:text-indigo-300 underline"
+                    >
+                        Forgot your password?
+                    </button>
+                </div>
+
                 <motion.div variants={formItemVariants}><Button type="submit" isLoading={isLoading}>Log in</Button></motion.div>
             </form>
             <motion.p variants={formItemVariants} className="mt-4 text-center text-sm text-text-secondary">
                 Don't have an account?{' '}
-                <button onClick={toggleAuthMode} className="font-medium text-indigo-400 hover:text-indigo-300 underline">Sign up</button>
+                <button onClick={() => setView('register')} className="font-medium text-indigo-400 hover:text-indigo-300 underline">Sign up</button>
             </motion.p>
         </motion.div>
     );
 };
 
-const RegisterForm = ({ toggleAuthMode }) => {
+const RegisterForm = ({ setView }) => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -239,7 +273,48 @@ const RegisterForm = ({ toggleAuthMode }) => {
             </form>
             <motion.p variants={formItemVariants} className="mt-4 text-center text-sm text-text-secondary">
                 Already have an account?{' '}
-                <button onClick={toggleAuthMode} className="font-medium text-indigo-400 hover:text-indigo-300 underline">Log in</button>
+                <button onClick={() => setView('login')} className="font-medium text-indigo-400 hover:text-indigo-300 underline">Log in</button>
+            </motion.p>
+        </motion.div>
+    );
+};
+
+const ForgotPasswordForm = ({ setView }) => {
+    const [email, setEmail] = useState('');
+    const [error, setError] = useState('');
+    const [message, setMessage] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setMessage('');
+        setIsLoading(true);
+        try { 
+            await authService.forgotPassword(email);
+            setMessage('Password reset link has been sent to your email.');
+        } catch (err) { 
+            setError(err?.message || 'Failed to send email'); 
+        } finally { 
+            setIsLoading(false); 
+        }
+    };
+
+    return (
+        <motion.div variants={formVariants} initial="hidden" animate="visible">
+            <motion.h2 variants={formItemVariants} className="text-center text-3xl font-extrabold text-text-primary">Forgot Password</motion.h2>
+            <p className="mt-2 text-center text-sm text-text-secondary">
+                Enter your email and we'll send you a link to reset your password.
+            </p>
+            <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+                {error && <p className="text-red-400 text-center">{error}</p>}
+                {message && <p className="text-green-400 text-center">{message}</p>}
+                <motion.div variants={formItemVariants}><FormInput id="email" label="Email Address" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" /></motion.div>
+                <motion.div variants={formItemVariants}><Button type="submit" isLoading={isLoading}>Send Reset Link</Button></motion.div>
+            </form>
+            <motion.p variants={formItemVariants} className="mt-4 text-center text-sm text-text-secondary">
+                Remembered your password?{' '}
+                <button onClick={() => setView('login')} className="font-medium text-indigo-400 hover:text-indigo-300 underline">Log in</button>
             </motion.p>
         </motion.div>
     );

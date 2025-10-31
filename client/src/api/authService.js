@@ -19,5 +19,19 @@ export const authService = {
             return { token: data.token, user };
         }
         throw new Error("Registration failed. Please try again.");
+    },
+
+    forgotPassword: async (email) => {
+        const { data } = await axios.post('/api/auth/forgotpassword', { email });
+        return data;
+    },
+
+    resetPassword: async (token, password) => {
+        const { data } = await axios.put(`/api/auth/resetpassword/${token}`, { password });
+        if (data) {
+            const user = { ...data, id: data._id };
+            return { token: data.token, user };
+        }
+        throw new Error("Password reset failed.");
     }
 };

@@ -41,8 +41,8 @@ const UserProfileHeader = ({ profile, currentUser, onFollow, onEditProfile, onFo
                                 onClick={() => onFollow(profile._id)}
                                 disabled={isFollowingProcessing}
                                 className={`py-2 px-6 rounded-full font-semibold transition-colors flex items-center justify-center min-w-[120px] ${isFollowing
-                                        ? 'bg-white/20 dark:bg-black/20 text-text-primary hover:bg-white/30 dark:hover:bg-black/30 disabled:bg-opacity-50'
-                                        : 'bg-indigo-500 text-white hover:bg-indigo-600 disabled:bg-indigo-400'
+                                    ? 'bg-white/20 dark:bg-black/20 text-text-primary hover:bg-white/30 dark:hover:bg-black/30 disabled:bg-opacity-50'
+                                    : 'bg-indigo-500 text-white hover:bg-indigo-600 disabled:bg-indigo-400'
                                     } disabled:cursor-not-allowed`}
                             >
                                 {isFollowingProcessing ? <Spinner small /> : (isFollowing ? 'Following' : 'Follow')}
@@ -52,23 +52,38 @@ const UserProfileHeader = ({ profile, currentUser, onFollow, onEditProfile, onFo
                 </div>
                 <h3 className="text-3xl font-bold text-text-primary mt-4">{profile.name}</h3>
                 <p className="text-text-secondary mt-2">{profile.bio}</p>
-                <div className="flex items-center space-x-4 mt-4 text-sm text-text-secondary">
+                <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4 mt-4 text-sm text-text-secondary">
                     {websiteUrl && (
-                        <a href={websiteUrl} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-indigo-400">
-                            <FiLink className="mr-1" />
-                            {profile.website}
+                        <a
+                            href={websiteUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center hover:text-indigo-400 min-w-0" 
+                        >
+                            <FiLink className="mr-1 flex-shrink-0" /> 
+                            <span className="truncate">{profile.website}</span>
                         </a>
                     )}
                     {twitterUrl && (
-                        <a href={twitterUrl} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-indigo-400">
-                            <FaTwitter className="mr-1" />
-                            {profile.twitter}
+                        <a
+                            href={twitterUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center hover:text-indigo-400 min-w-0" 
+                        >
+                            <FaTwitter className="mr-1 flex-shrink-0" />
+                            <span className="truncate">{profile.twitter}</span>
                         </a>
                     )}
                     {linkedinUrl && (
-                        <a href={linkedinUrl} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-indigo-400">
-                            <FaLinkedin className="mr-1" />
-                            {profile.linkedin}
+                        <a
+                            href={linkedinUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center hover:text-indigo-400 min-w-0"
+                        >
+                            <FaLinkedin className="mr-1 flex-shrink-0" />
+                            <span className="truncate">{profile.linkedin}</span>
                         </a>
                     )}
                 </div>

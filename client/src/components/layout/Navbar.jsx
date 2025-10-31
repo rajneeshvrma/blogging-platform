@@ -4,7 +4,7 @@ import { useAppContext } from '../../hooks/useAuth';
 import { LogoIcon, SearchIcon, SunIcon, MoonIcon } from '../common/Icons';
 
 const Navbar = () => {
-    const { isAuthenticated, logout, theme, toggleTheme } = useAppContext();
+    const { isAuthenticated, logout, theme, toggleTheme, user } = useAppContext();
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -97,7 +97,7 @@ const Navbar = () => {
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex items-center justify-between h-16">
                             <Link to="/" onClick={closeMobileMenu} className="group text-text-primary font-bold text-xl tracking-wider bg-glass backdrop-blur-lg border border-glass rounded-full px-4 py-2 flex items-center space-x-2 transition-all duration-300 z-50">
-                                <LogoIcon />
+                                <LogoIcon /><span>GlassBlog</span>
                             </Link>
                             <button
                                 onClick={toggleMobileMenu}
@@ -161,6 +161,7 @@ const Navbar = () => {
                         {isAuthenticated ? (
                             <>
                                 <Link to="/dashboard" className="bg-glass backdrop-blur-lg border border-glass text-text-secondary hover:bg-white/20 hover:text-text-primary px-4 py-2 rounded-full text-sm font-medium transition-colors text-center" onClick={closeMobileMenu}>Dashboard</Link>
+                                <Link to={`/profile/${user._id}`} className="bg-glass backdrop-blur-lg border border-glass text-text-secondary hover:bg-white/20 hover:text-text-primary px-4 py-2 rounded-full text-sm font-medium transition-colors text-center" onClick={closeMobileMenu}>Profile</Link>
                                 <button onClick={handleLogout} className="bg-indigo-500 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-indigo-600 transition-colors">Logout</button>
                             </>
                         ) : (
