@@ -22,6 +22,7 @@ import TermsAndConditionsPage from './pages/TermsAndConditionsPage';
 import DisclaimerPage from './pages/DisclaimerPage';
 import ExploreBlogsPage from './pages/ExploreBlogsPage';
 import CategoriesPage from './pages/CategoriesPage';
+import SearchPage from './pages/SearchPage';
 
 const PrivateRoute = ({ children }) => {
     const { isAuthenticated } = useAppContext();
@@ -58,6 +59,7 @@ const AppContent = () => {
                         <Route path="/create-post" element={<PrivateRoute><CreatePostPage /></PrivateRoute>} />
 
                         {/* Public Routes */}
+                        <Route path="/search" element={<SearchPage />} />
                         <Route path="/explore-blogs" element={<ExploreBlogsPage />} />
                         <Route path="/categories" element={<CategoriesPage />} />
                         <Route path="/about" element={<AboutPage />} />

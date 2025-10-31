@@ -4,6 +4,20 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAppContext } from '../hooks/useAuth';
 import Button from '../components/common/Button';
 
+const useIsDesktop = () => {
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia('(min-width: 768px)');
+    const updateMatch = () => setIsDesktop(media.matches);
+    updateMatch();
+    media.addEventListener('change', updateMatch);
+    return () => media.removeEventListener('change', updateMatch);
+  }, []);
+
+  return isDesktop;
+};
+
 const FormInput = ({ id, label, type, value, onChange, placeholder, required = true }) => (
     <div>
         <label htmlFor={id} className="text-sm font-medium text-text-secondary">{label}</label>
@@ -79,6 +93,9 @@ const AuthPage = () => {
     const navigate = useNavigate();
     const { isAuthenticated, loading } = useAppContext();
     const toggleAuthMode = (e) => { e?.preventDefault(); setIsLogin(prev => !prev); };
+    
+    const isDesktop = useIsDesktop(); 
+
     useEffect(() => { setIsLogin(location.state?.show !== 'register'); }, [location.state]);
 
     useEffect(() => {
@@ -106,7 +123,12 @@ const AuthPage = () => {
             />
             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, ease: "easeOut" }} className="relative w-full max-w-4xl h-[600px] bg-white/5 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/10 overflow-hidden" >
                 <div className="w-full h-full relative overflow-hidden">
-                    <motion.div animate={{ x: isLogin ? '0%' : '100%' }} transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }} className="absolute top-0 left-0 w-1/2 h-full p-8 md:p-12 z-20 flex flex-col justify-center">
+                    
+                    <motion.div 
+                        animate={{ x: isLogin ? '0%' : (isDesktop ? '100%' : '0%') }} 
+                        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }} 
+                        className="absolute top-0 left-0 w-full md:w-1/2 h-full p-8 md:p-12 z-20 flex flex-col justify-center"
+                    >
                         <AnimatePresence mode="wait">
                             <motion.div key={isLogin ? 'login' : 'register'} initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }} transition={{ duration: 0.5 }} >
                                 {isLogin ? <LoginForm toggleAuthMode={toggleAuthMode} /> : <RegisterForm toggleAuthMode={toggleAuthMode} />}
@@ -114,7 +136,11 @@ const AuthPage = () => {
                         </AnimatePresence>
                     </motion.div>
 
-                    <motion.div animate={{ x: isLogin ? '0%' : '-100%' }} transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }} className="absolute top-0 right-0 w-1/2 h-full z-50" >
+                    <motion.div 
+                        animate={{ x: isLogin ? '0%' : (isDesktop ? '-100%' : '0%') }} 
+                        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }} 
+                        className="hidden md:block absolute top-0 right-0 w-1/2 h-full z-50" 
+                    >
                         <div className="w-full h-full bg-cover bg-center opacity-70" style={{ backgroundImage: backgroundImageUrl }}>
                             <div className="w-full h-full bg-black/30 p-8 flex flex-col justify-end text-white">
                                 <AnimatePresence mode="wait">
@@ -153,12 +179,12 @@ const LoginForm = ({ toggleAuthMode }) => {
 
     return (
         <motion.div variants={formVariants} initial="hidden" animate="visible">
-            <motion.h2 variants={formItemVariants} className="text-center text-3xl font-extrabold text-text-primary">Sign In</motion.h2>
+            <motion.h2 variants={formItemVariants} className="text-center text-3xl font-extrabold text-text-primary">Log in</motion.h2>
             <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                 {error && <p className="text-red-400 text-center">{error}</p>}
                 <motion.div variants={formItemVariants}><FormInput id="email" label="Email Address" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" /></motion.div>
                 <motion.div variants={formItemVariants}><PasswordInput id="password" label="Password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" /></motion.div>
-                <motion.div variants={formItemVariants}><Button type="submit" isLoading={isLoading}>Sign in</Button></motion.div>
+                <motion.div variants={formItemVariants}><Button type="submit" isLoading={isLoading}>Log in</Button></motion.div>
             </form>
             <motion.p variants={formItemVariants} className="mt-4 text-center text-sm text-text-secondary">
                 Don't have an account?{' '}
@@ -213,7 +239,7 @@ const RegisterForm = ({ toggleAuthMode }) => {
             </form>
             <motion.p variants={formItemVariants} className="mt-4 text-center text-sm text-text-secondary">
                 Already have an account?{' '}
-                <button onClick={toggleAuthMode} className="font-medium text-indigo-400 hover:text-indigo-300 underline">Sign in</button>
+                <button onClick={toggleAuthMode} className="font-medium text-indigo-400 hover:text-indigo-300 underline">Log in</button>
             </motion.p>
         </motion.div>
     );

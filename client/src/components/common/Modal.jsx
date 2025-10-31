@@ -1,5 +1,4 @@
 import React from 'react';
-// FIX: Correct the path to the Icons.jsx file
 import { CloseIcon } from './Icons';
 
 const Modal = ({ children, onClose, title, size = 'md' }) => {
